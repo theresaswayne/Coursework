@@ -24,13 +24,13 @@ def yieldAllCombos(items):
         combo2 = []
         # Vary something to get each possibility, one at a time
         for j in range(N):
-            print("i = "+ str(i),"j = "+str(j))
+            print("i = "+ str(i),"j = "+str(j),"test = "+str(int(i/(3**(N-j)))))
             # Test condition to see where to put items
-            if i % N == 0:
+            if (int(i/(3**j)) % 3 == 0):
                 continue
-            elif i % N == 1:
+            elif (int(i/(3**j)) % 3 == 1):
                 combo1.append(items[j])
-            elif i % N == 2:
+            elif (int(i/(3**j)) % 3 == 2):
                 combo2.append(items[j])
         yield (combo1, combo2)
         
