@@ -53,9 +53,30 @@ def greedy_cow_transport(cows,limit=10):
     A list of lists, with each inner list containing the names of cows
     transported on a particular trip and the overall list containing all the
     trips
-    """
-    # TODO: Your code here
-    pass
+    """ 
+
+    # TODO: update to include largest cow THAT WILL FIT 
+    # instead of stopping when next cow puts you over the limit
+    cowsCopy = sorted(cows, key=cows.__getitem__, reverse = True)
+    print(str(cowsCopy))
+    allTripsResult = []
+    thisTripResult = []
+    tripWeight = 0.0
+    for nextCow in cowsCopy:
+        print("Checking "+nextCow+" weighing "+str(cows[nextCow]))
+        if (tripWeight + cows[nextCow] <= limit):
+            thisTripResult.append(nextCow) # the name of the cow
+            tripWeight += cows[nextCow] # the weight of the cow
+            print(str(thisTripResult) + " weighing " + str(tripWeight))
+        else: # the trip is full so start a new one
+            print("new trip started")
+            allTripsResult.append(thisTripResult)
+            print("all trips so far: "+ str(allTripsResult))
+            tripWeight = cows[nextCow]
+            thisTripResult = [nextCow]
+            print(str(thisTripResult) + " weighing " + str(tripWeight))
+
+    return allTripsResult
 
 
 # Problem 2
@@ -109,9 +130,17 @@ lines to print the result of your problem.
 
 cows = load_cows("ps1_cow_data.txt")
 limit=100
-print(cows)
+# print(cows)
 
-print(greedy_cow_transport(cows, limit))
-print(brute_force_cow_transport(cows, limit))
+print(greedy_cow_transport({'Polaris': 20, 'Horns': 50, 'Miss Bella': 15, 'Louis': 45, 'Clover': 5, 'Milkshake': 75, 'Muscles': 65, 'Lotus': 10, 'MooMoo': 85, 'Patches': 60}, 100))
+
+#==============================================================================
+# Your output:
+# [['MooMoo'], ['Muscles'], ['Horns', 'Louis']]
+# Correct output:
+# [['MooMoo', 'Miss Bella'], ['Milkshake', 'Polaris', 'Clover'], ['Muscles', 'Lotus'], ['Patches'], ['Horns', 'Louis']]
+#==============================================================================
+# print(greedy_cow_transport(cows, 20))
+# print(brute_force_cow_transport(cows, limit))
 
 
