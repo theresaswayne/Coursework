@@ -55,26 +55,29 @@ def greedy_cow_transport(cows,limit=10):
     trips
     """ 
 
-    # TODO: update to include largest cow THAT WILL FIT 
-    # instead of stopping when next cow puts you over the limit
     cowsCopy = sorted(cows, key=cows.__getitem__, reverse = True)
-    print(str(cowsCopy))
+#    print("Sorted cows are "+ str(cowsCopy))
+    cowsLeft = cowsCopy[:] # clone the list
     allTripsResult = []
     thisTripResult = []
     tripWeight = 0.0
-    for nextCow in cowsCopy:
-        print("Checking "+nextCow+" weighing "+str(cows[nextCow]))
-        if (tripWeight + cows[nextCow] <= limit):
-            thisTripResult.append(nextCow) # the name of the cow
-            tripWeight += cows[nextCow] # the weight of the cow
-            print(str(thisTripResult) + " weighing " + str(tripWeight))
-        else: # the trip is full so start a new one
-            print("new trip started")
-            allTripsResult.append(thisTripResult)
-            print("all trips so far: "+ str(allTripsResult))
-            tripWeight = cows[nextCow]
-            thisTripResult = [nextCow]
-            print(str(thisTripResult) + " weighing " + str(tripWeight))
+
+    while (len(cowsLeft) > 0):
+        thisTripResult = []
+        tripWeight = 0.0
+        for nextCow in cowsCopy: # this has to be a sorted list
+            if (nextCow in cowsLeft):
+                # print("Checking "+nextCow+" weighing "+str(cows[nextCow]))
+                if (tripWeight + cows[nextCow] <= limit):
+                    thisTripResult.append(nextCow) # the name of the cow
+                    tripWeight += cows[nextCow] # the weight of the cow
+                    # print("Taking "+ str(thisTripResult) + " weighing " + str(tripWeight))
+                    cowsLeft.remove(nextCow) # remove this one from consideration
+        # when all of the cows have been checked once
+        # print("This trip has "+ str(thisTripResult) + " weighing " + str(tripWeight))
+        allTripsResult.append(thisTripResult)
+        # print("All trips so far: "+ str(allTripsResult))
+        # print("New trip started")
 
     return allTripsResult
 
@@ -140,6 +143,14 @@ print(greedy_cow_transport({'Polaris': 20, 'Horns': 50, 'Miss Bella': 15, 'Louis
 # Correct output:
 # [['MooMoo', 'Miss Bella'], ['Milkshake', 'Polaris', 'Clover'], ['Muscles', 'Lotus'], ['Patches'], ['Horns', 'Louis']]
 #==============================================================================
+
+# print(greedy_cow_transport({'Buttercup': 72, 'Betsy': 65, 'Lilly': 24, 'Daisy': 50, 'Abby': 38, 'Rose': 50, 'Willow': 35, 'Patches': 12, 'Dottie': 85, 'Coco': 10}, 100))
+#==============================================================================
+# Correct output:
+# [['Dottie', 'Patches'], ['Buttercup', 'Lilly'], 
+# ['Betsy', 'Willow'], ['Daisy', 'Rose'], ['Abby', 'Coco']]
+#==============================================================================
+
 # print(greedy_cow_transport(cows, 20))
 # print(brute_force_cow_transport(cows, limit))
 
