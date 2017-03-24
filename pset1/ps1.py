@@ -31,7 +31,7 @@ def load_cows(filename):
     return cow_dict
 
 
-# Problem 1
+# Problem 1 SOLVED
 def greedy_cow_transport(cows,limit=10):
     """
     Uses a greedy heuristic to determine an allocation of cows that attempts to
@@ -103,8 +103,47 @@ def brute_force_cow_transport(cows,limit=10):
     transported on a particular trip and the overall list containing all the
     trips
     """
-    # TODO: Your code here
-    pass
+    
+    cowNames = cows.keys()
+    
+    # step 1 -- enumeration
+   
+    def possible_alloc(items):
+        ''' 
+        generator for cow allocations
+        note: this does not ensure that the allocations obey the weight limit
+        input: list (strings)
+        output: list of lists, each inner list being the cows on one trip
+        '''
+        
+        for item in (get_partitions(items)):
+            yield(item)
+    
+    allocations = possible_alloc(cowNames)
+    
+    #step 2 -- evaluate number of trips and compliance with weight limit
+    # check the number of trips first because I expect it to save calculation time
+    
+    minTrips = len(cowNames) # the largest it could be -- one cow per trip
+    
+    for alloc in allocations:
+        trips = len(alloc) # each element of alloc is the list of cows on one trip; 
+        # the number of elements is the number of trips
+        if trips < minTrips:
+            # TODO: check if the weight is ok
+            # do it by looping over the trips in alloc 
+            # looking up the values in the dictionary cows 
+            # and summing them to get the total for each trip. If it goes over limit 
+            # then go to the next alloc
+            # if it doesn't go over limit then update minTrips
+                minTrips = trips
+        
+    # TODO:
+    # loop over the allocations
+    # loop over the lists in each allocation
+    # calculate weight of each inner list and discard the alloc if any is over limit
+    # for valid alloc, 
+    
 
         
 # Problem 3
@@ -131,27 +170,36 @@ Do not submit this along with any of your answers. Uncomment the last two
 lines to print the result of your problem.
 """
 
+#==============================================================================
+# Testing whether we can load data 
+#==============================================================================
+
 cows = load_cows("ps1_cow_data.txt")
-limit=100
 # print(cows)
 
-print(greedy_cow_transport({'Polaris': 20, 'Horns': 50, 'Miss Bella': 15, 'Louis': 45, 'Clover': 5, 'Milkshake': 75, 'Muscles': 65, 'Lotus': 10, 'MooMoo': 85, 'Patches': 60}, 100))
-
 #==============================================================================
-# Your output:
-# [['MooMoo'], ['Muscles'], ['Horns', 'Louis']]
+# Testing part 1
+#==============================================================================
+
+# print(greedy_cow_transport({'Polaris': 20, 'Horns': 50, 'Miss Bella': 15, 'Louis': 45, 'Clover': 5, 'Milkshake': 75, 'Muscles': 65, 'Lotus': 10, 'MooMoo': 85, 'Patches': 60}, 100))
 # Correct output:
 # [['MooMoo', 'Miss Bella'], ['Milkshake', 'Polaris', 'Clover'], ['Muscles', 'Lotus'], ['Patches'], ['Horns', 'Louis']]
-#==============================================================================
 
 # print(greedy_cow_transport({'Buttercup': 72, 'Betsy': 65, 'Lilly': 24, 'Daisy': 50, 'Abby': 38, 'Rose': 50, 'Willow': 35, 'Patches': 12, 'Dottie': 85, 'Coco': 10}, 100))
-#==============================================================================
 # Correct output:
 # [['Dottie', 'Patches'], ['Buttercup', 'Lilly'], 
 # ['Betsy', 'Willow'], ['Daisy', 'Rose'], ['Abby', 'Coco']]
-#==============================================================================
 
 # print(greedy_cow_transport(cows, 20))
-# print(brute_force_cow_transport(cows, limit))
 
+#==============================================================================
+# Testing part 2
+#==============================================================================
+
+# testing import of partitions functions
+# for item in (get_partitions(cows)):
+#       print(item)
+
+limit = 100
+print(brute_force_cow_transport(cows, limit))
 
