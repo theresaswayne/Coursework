@@ -21,5 +21,7 @@ def get_partitions(set_):
 ### Uncomment the following code  and run this file
 ### to see what get_partitions does if you want to visualize it:
 
-for item in (get_partitions(['a','b','c','d'])):
-     print(item)
+# note this will be printed when the file is imported 
+
+#for item in (get_partitions(['a','b','c','d'])):
+#     print(item)
