@@ -129,8 +129,15 @@ def brute_force_cow_transport(cows,limit=10):
     for alloc in allocations:
         trips = len(alloc) # each element of alloc is the list of cows on one trip; 
         # the number of elements is the number of trips
+        print("this step has "+str(trips)+" trips")
         if trips < minTrips: # is it a candidate for the shortest trip?
-            
+            for trip in alloc:
+                tripWeight = 0
+                for cow in trip:
+                    print("the cow is "+ cow + " who weighs "+str(cows[cow]))
+                    tripWeight += cows[cow]
+                    print("total trip weight = "+str(tripWeight))
+                    
             # TODO: check if the weight is ok
             # do it by looping over the trips in alloc 
             # looking up the values in the dictionary cows 
