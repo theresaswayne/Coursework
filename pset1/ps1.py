@@ -125,32 +125,26 @@ def brute_force_cow_transport(cows,limit=10):
     # check the number of trips first because I expect it to save calculation time
     
     minTrips = len(cowNames) # the largest it could be -- one cow per trip
-    
+    bestAlloc = []
+    for name in cowNames:
+        bestAlloc.append([str(name)]) # the worst it could be -- one cow per trip
+    # print("initial bestAlloc is "+str(bestAlloc))
     for alloc in allocations:
         trips = len(alloc) # each element of alloc is the list of cows on one trip; 
         # the number of elements is the number of trips
-        print("this step has "+str(trips)+" trips")
-        if trips < minTrips: # is it a candidate for the shortest trip?
+        if trips <= minTrips: # is it a candidate for the shortest trip?
             for trip in alloc:
-                tripWeight = 0
-                for cow in trip:
-                    print("the cow is "+ cow + " who weighs "+str(cows[cow]))
-                    tripWeight += cows[cow]
-                    print("total trip weight = "+str(tripWeight))
-                    
-            # TODO: check if the weight is ok
-            # do it by looping over the trips in alloc 
-            # looking up the values in the dictionary cows 
-            # and summing them to get the total for each trip. If it goes over limit 
-            # then go to the next alloc
-            # if it doesn't go over limit then update minTrips
+                cowWeights = [cows[name] for name in trip]
+                tripWeight = sum(cowWeights)
+                if tripWeight > limit:
+                    break # out of the trip loop, so check the next alloc
+            else:
                 minTrips = trips
-        
-    # TODO:
-    # loop over the allocations
-    # loop over the lists in each allocation
-    # calculate weight of each inner list and discard the alloc if any is over limit
-    # for valid alloc, 
+                bestAlloc = alloc
+
+    # print("Final best allocation is " + str(bestAlloc))
+    # print("accomplished in "+str(minTrips)+ " trips")
+    return bestAlloc
     
 
         
@@ -185,6 +179,7 @@ lines to print the result of your problem.
 cows = load_cows("ps1_cow_data.txt")
 # print(cows)
 
+limit = 20
 #==============================================================================
 # Testing part 1
 #==============================================================================
@@ -197,8 +192,10 @@ cows = load_cows("ps1_cow_data.txt")
 # Correct output:
 # [['Dottie', 'Patches'], ['Buttercup', 'Lilly'], 
 # ['Betsy', 'Willow'], ['Daisy', 'Rose'], ['Abby', 'Coco']]
-
-# print(greedy_cow_transport(cows, 20))
+start = time.time()
+print(greedy_cow_transport(cows, limit))
+end = time.time()
+print("For the greedy algorithm, time = " + str(end - start))
 
 #==============================================================================
 # Testing part 2
@@ -207,7 +204,8 @@ cows = load_cows("ps1_cow_data.txt")
 # testing import of partitions functions
 # for item in (get_partitions(cows)):
 #       print(item)
-
-limit = 100
+start = time.time()
 print(brute_force_cow_transport(cows, limit))
+end = time.time()
+print("For the brute-force algorithm, time = " + str(end - start))
 
