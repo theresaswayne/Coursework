@@ -26,10 +26,10 @@ for i in range(0, 30):
 
 
 # first trial
-#plt.plot(mySamples, myLinear)
-#plt.plot(mySamples, myQuadratic)
-#plt.plot(mySamples, myCubic)
-#plt.plot(mySamples, myExponential)
+plt.plot(mySamples, myLinear)
+plt.plot(mySamples, myQuadratic)
+plt.plot(mySamples, myCubic)
+plt.plot(mySamples, myExponential)
 
 # second trial
 #plt.figure('lin')
