@@ -10,7 +10,10 @@ Created on Sun Mar 26 17:27:57 2017
 import random
 import pylab as plt
 
-n = 100
+random.seed()
+# random.seed(0)
+
+n = 10
 
 # generate some random (or not) numbers
 

@@ -172,9 +172,9 @@ def simAll(drunkKinds, walkLengths, numTrials):
     pylab.ylabel('Distance from Origin')
     pylab.legend(loc = 'best')
 
-#random.seed(0)
-#numSteps = (10,100,1000,10000)
-#simAll((UsualDrunk, ColdDrunk), numSteps, 100)
+random.seed(0)
+numSteps = (10,100,1000,10000)
+simAll((UsualDrunk, ColdDrunk), numSteps, 100)
 
 def getFinalLocs(numSteps, numTrials, dClass):
     locs = []
@@ -212,8 +212,8 @@ def plotLocs(drunkKinds, numSteps, numTrials):
     pylab.ylabel('Steps North/South of Origin')
     pylab.legend(loc = 'upper left')
 
-random.seed(0)
-plotLocs((UsualDrunk, ColdDrunk), 10000, 1000)
+#random.seed(0)
+#plotLocs((UsualDrunk, ColdDrunk), 10000, 1000)
 
 class OddField(Field):
     def __init__(self, numHoles = 1000,
