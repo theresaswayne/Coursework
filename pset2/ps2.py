@@ -53,7 +53,9 @@ class Position(object):
         old_x, old_y = self.getX(), self.getY()
         angle = float(angle)
         # Compute the change in position
-        delta_y = speed * math.cos(math.radians(angle))
+        # tcs: using formula cos(angle) = delta_x/(distance traveled)
+        # tcs: speed = distance because 1 time unit has elapsed
+        delta_y = speed * math.cos(math.radians(angle)) 
         delta_x = speed * math.sin(math.radians(angle))
         # Add that to the existing position
         new_x = old_x + delta_x
@@ -61,7 +63,7 @@ class Position(object):
         return Position(new_x, new_y)
 
     def __str__(self):  
-        return "(%0.2f, %0.2f)" % (self.x, self.y)
+        return "(%0.2f, %0.2f)" % (self.x, self.y) # specified decimal places
 
 
 # === Problem 1
@@ -328,3 +330,13 @@ def showPlot2(title, x_label, y_label):
 #
 #       (... your call here ...)
 #
+
+#===========================================
+# Testing
+#===========================================
+pos = Position(1,1)
+print(pos)
+angle = 90
+speed = 10
+pos = Position.getNewPosition(pos,angle, speed)
+print(pos)
