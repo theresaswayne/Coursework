@@ -84,7 +84,8 @@ class RectangularRoom(object):
         width: an integer > 0
         height: an integer > 0
         """
-        raise NotImplementedError
+        self.width = width
+        self.height = height
     
     def cleanTileAtPosition(self, pos):
         """
@@ -114,7 +115,7 @@ class RectangularRoom(object):
 
         returns: an integer
         """
-        raise NotImplementedError
+        return self.width * self.height
 
     def getNumCleanedTiles(self):
         """
@@ -139,7 +140,13 @@ class RectangularRoom(object):
         pos: a Position object.
         returns: True if pos is in the room, False otherwise.
         """
-        raise NotImplementedError
+        if pos.getX() >= 0 and pos.getY() >= 0:
+            if pos.getX() <= self.width and pos.getY() <= self.height:
+                return True
+            else:
+                return False
+        else:
+            return False
 
 
 # === Problem 2
@@ -334,9 +341,27 @@ def showPlot2(title, x_label, y_label):
 #===========================================
 # Testing
 #===========================================
-pos = Position(1,1)
-print(pos)
-angle = 90
-speed = 10
-pos = Position.getNewPosition(pos,angle, speed)
-print(pos)
+
+# Playing with Position class
+#x=1
+#y=1
+#angle = 88
+#speed = 5
+#pos = Position(x,y)
+#print(pos)
+#pos = Position.getNewPosition(pos,angle, speed)
+#print(pos)
+#currx = pos.getX()
+#print("%0.2f" % currx) # print with precision but leave value intact
+
+# Playing with RectangularRoom
+w = 15
+h = 9
+room = RectangularRoom(w,h)
+#todo = room.getNumTiles()
+#print(str(todo))
+x=3.76843907534
+y=9.6573856
+pos = Position(x,y)
+print(room.isPositionInRoom(pos))
+
