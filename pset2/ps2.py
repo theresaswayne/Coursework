@@ -86,6 +86,11 @@ class RectangularRoom(object):
         """
         self.width = width
         self.height = height
+        tileList = [(x, y) for x in range(0, self.width) for y in range(0, self.height)]
+        # print(tileList)
+        self.cleanMap = {tile:False for tile in tileList}
+        # print(self.cleanMap)
+
     
     def cleanTileAtPosition(self, pos):
         """
@@ -95,6 +100,16 @@ class RectangularRoom(object):
 
         pos: a Position
         """
+        # I think this is where we map positions to tiles
+        # TODO: how to deal with boundaries -- 
+        # Position 0,0 is in the 2x2 room. So is 2,2.
+        # Which tile does each of those belong to?
+        # Which tile does 1,1 belong to?
+        # there are only 4 tiles in the current system.
+        # suggestion: w,h (any with x=w or y=h) belongs to w-1, h-1, 
+        # and the others belong to their floor, because there is a function for floor
+        # so 1.0,1.0 belongs to tile 1,1, so do 1.9, 1.9 and 2.0, 2.0
+        
         raise NotImplementedError
 
     def isTileCleaned(self, m, n):
@@ -108,6 +123,8 @@ class RectangularRoom(object):
         returns: True if (m, n) is cleaned, False otherwise
         """
         raise NotImplementedError
+        
+        # TODO:  this is a simple dict lookup
     
     def getNumTiles(self):
         """
@@ -123,6 +140,8 @@ class RectangularRoom(object):
 
         returns: an integer
         """
+        # TODO: This is adding up the True values for each key in the dict
+        
         raise NotImplementedError
 
     def getRandomPosition(self):
@@ -131,7 +150,10 @@ class RectangularRoom(object):
 
         returns: a Position object.
         """
-        raise NotImplementedError
+        # random.seed() # initialize the randomness every time called
+        randX = random.random()*self.width
+        randY = random.random()* self.height
+        return Position(randX,randY)
 
     def isPositionInRoom(self, pos):
         """
@@ -147,7 +169,8 @@ class RectangularRoom(object):
                 return False
         else:
             return False
-
+        # note could do this with the tile list if you wanted 
+        # but this should be faster because it is constant with growth of list
 
 # === Problem 2
 class Robot(object):
@@ -354,14 +377,25 @@ def showPlot2(title, x_label, y_label):
 #currx = pos.getX()
 #print("%0.2f" % currx) # print with precision but leave value intact
 
-# Playing with RectangularRoom
-w = 15
-h = 9
+# Testing RectangularRoom
+w = 2
+h = 2
 room = RectangularRoom(w,h)
+
+# testing get numTiles
 #todo = room.getNumTiles()
 #print(str(todo))
-x=3.76843907534
-y=9.6573856
+
+# Testing isPositionInRoom
+x=2
+y=2
 pos = Position(x,y)
 print(room.isPositionInRoom(pos))
+
+# Testing getRandomPosition
+random.seed(0) # for predictable testing
+for i in range (0,3):
+    pos = room.getRandomPosition()
+    print(pos, room.isPositionInRoom(pos))
+
 
