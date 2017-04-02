@@ -96,21 +96,11 @@ class RectangularRoom(object):
         converts the float coordinates in pos to integer coordinates marking a tile
         pos: a Position
         returns a tuple of 2 integers m, n denoting a tile (named after the upper left corner)
-        except that the extreme lower right corner is assigned to the nearest tile
-        
+        Note that positions on the extreme edge are not allowed in the problem
+        -- that is, in a 2x2 room (2.00, 2.00) is not in the room.
         """
-        # are we at the extreme right edge?
-        if pos.getX() == room.width:
-            m = math.floor(pos.getX() - 1)
-        else:
-            m = math.floor(pos.getX())
-        
-        # are we at the bottom?
-        if pos.getY == room.height:
-            n = math.floor(pos.getY() - 1)
-        else:
-            n = math.floor(pos.getY())
-        
+        m = math.floor(pos.getX())
+        n = math.floor(pos.getY())
         return (m, n)
         
     def cleanTileAtPosition(self, pos):
@@ -151,9 +141,9 @@ class RectangularRoom(object):
 
         returns: an integer
         """
-        # TODO: This is adding up the True values for each key in the dict
+        # Add up the True values for each key in the dict
         
-        raise NotImplementedError
+        return sum(self.cleanMap.values()) # True is an integer of value 1
 
     def getRandomPosition(self):
         """
@@ -174,14 +164,13 @@ class RectangularRoom(object):
         returns: True if pos is in the room, False otherwise.
         """
         if pos.getX() >= 0 and pos.getY() >= 0:
-            if pos.getX() <= self.width and pos.getY() <= self.height:
+            if pos.getX() < self.width and pos.getY() < self.height:
                 return True
             else:
                 return False
         else:
             return False
-        # note could do this with the tile list if you wanted 
-        # but this should be faster because it is constant with growth of list
+
 
 # === Problem 2
 class Robot(object):
@@ -203,7 +192,22 @@ class Robot(object):
         room:  a RectangularRoom object.
         speed: a float (speed > 0)
         """
-        raise NotImplementedError
+        self.room = room
+        self.speed = speed
+        
+        # random position: 2 random floats within the range [0,w), [0, h)
+        # random.seed() # initialize the randomness every time called
+        posX = random.random() * room.width
+        posY = random.random() * room.height
+        
+        self.Pos = Position(posX,posY)
+
+        # random direction: random integer [0, 360)
+        self.Dir = random.randrange(0,360) # note that lowercase dir is reserved
+        
+        # clean the tile it is on using cleanTileAtPosition
+        room.cleanTileAtPosition(self.Pos)
+        
 
     def getRobotPosition(self):
         """
@@ -211,7 +215,7 @@ class Robot(object):
 
         returns: a Position object giving the robot's position.
         """
-        raise NotImplementedError
+        return self.Pos
     
     def getRobotDirection(self):
         """
@@ -220,7 +224,7 @@ class Robot(object):
         returns: an integer d giving the direction of the robot as an angle in
         degrees, 0 <= d < 360.
         """
-        raise NotImplementedError
+        return self.Dir
 
     def setRobotPosition(self, position):
         """
@@ -228,7 +232,9 @@ class Robot(object):
 
         position: a Position object.
         """
-        raise NotImplementedError
+        newX = position.getX()
+        newY = position.getY()
+        self.Pos = Position(newX, newY)
 
     def setRobotDirection(self, direction):
         """
@@ -236,7 +242,7 @@ class Robot(object):
 
         direction: integer representing an angle in degrees
         """
-        raise NotImplementedError
+        self.Dir = direction
 
     def updatePositionAndClean(self):
         """
@@ -376,7 +382,7 @@ def showPlot2(title, x_label, y_label):
 # Testing
 #===========================================
 
-# Playing with Position class
+# ==== Playing with Position class ====
 #x=1
 #y=1
 #angle = 88
@@ -388,40 +394,81 @@ def showPlot2(title, x_label, y_label):
 #currx = pos.getX()
 #print("%0.2f" % currx) # print with precision but leave value intact
 
-# Testing RectangularRoom
-w = 2
-h = 2
-room = RectangularRoom(w,h)
+# ==== Testing Problem 1 -- Rectangular Room ====
 
-# testing get numTiles
+#random.seed(0) # for predictable testing
+#w = 2
+#h = 2
+#room = RectangularRoom(w,h)
+
+# ---- get numTiles ----
 #todo = room.getNumTiles()
 #print(str(todo))
 
-# Testing isPositionInRoom
-x=2
-y=2
-pos = Position(x,y)
-# print(room.isPositionInRoom(pos))
+# ---- isPositionInRoom ----
+#x=2.00
+#y=2.00
+#pos = Position(x,y)
+#print(room.isPositionInRoom(pos))
 
-# Testing getRandomPosition
+# ---- getRandomPosition, getNumTiles, getNumCleanedTiles,  ---
+# ---- cleanTileAtPosition, isTileCleaned ----
+
+#for i in range (0,10):
+#    pos = room.getRandomPosition()
+#    x = pos.getX()
+#    y = pos.getY()
+#    print(pos, "is in room?", room.isPositionInRoom(pos))
+#    print("There are",str(room.getNumTiles()), "tiles, of which", \
+#          str(room.getNumCleanedTiles()), "are clean.")
+#    print("For position",pos,"the tile is"+str(room.Tile(pos)))
+
+#    (m,n) = room.Tile(pos)
+
+#    if room.isTileCleaned(m,n): # test isTileCleaned
+#        print("clean!")
+#    else:
+#        print("dirty!")
+#        if i%2 == 0: # clean some of the tiles
+#            room.cleanTileAtPosition(pos)
+#        if room.isTileCleaned(m,n):
+#            print("now clean!")
+#        else:
+#            print("still dirty!")
+
+# ====== Testing Problem 2 -- Robot =======
+
 random.seed(0) # for predictable testing
-for i in range (0,10):
-    pos = room.getRandomPosition()
-    x = pos.getX()
-    y = pos.getY()
-    print(pos, "is in room?", room.isPositionInRoom(pos))
-    print("Tile is "+str(room.Tile(pos)))
-    (m,n) = room.Tile(pos)
+w = 2
+h = 2
+speed = 1
+x=1.40
+y=1.60
+newDirection = 95
+newPos = Position(x,y)
+#print("the position chosen is", newPos)
+room = RectangularRoom(w,h)
 
-    if room.isTileCleaned(m,n):
-        print("clean!")
-    else:
-        print("dirty!")
-        if i%2 == 0:
-            room.cleanTileAtPosition(pos)
-        if room.isTileCleaned(m,n):
-            print("now clean!")
-        else:
-            print("still dirty!")
+# ----- initializing a Robot -----
+robbie = Robot(room, speed) 
 
+# ---- testing 'getters'----
+pos = robbie.getRobotPosition() 
+direct = robbie.getRobotDirection()
+print("Initial position, direction are", str(pos), str(direct))
+
+# ---- testing 'setters' ----
+#robbie.setRobotPosition(newPos)
+#robbie.setRobotDirection(newDirection)
+#pos = robbie.getRobotPosition()
+#direct = robbie.getRobotDirection()
+#print("New position, direction are", str(pos), str(direct))
+
+#  --- testing if the initial tile is cleaned ----
+(m,n) = room.Tile(pos)
+if room.isTileCleaned(m,n): # test isTileCleaned
+    print("initial position clean!")
+else:
+    print("initial position dirty!")
+    
 
