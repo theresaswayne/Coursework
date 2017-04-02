@@ -66,7 +66,7 @@ class Position(object):
         return "(%0.2f, %0.2f)" % (self.x, self.y) # specified decimal places
 
 
-# === Problem 1
+# --- Problem 1 ---
 class RectangularRoom(object):
     """
     A RectangularRoom represents a rectangular region containing clean or dirty
@@ -172,7 +172,7 @@ class RectangularRoom(object):
             return False
 
 
-# === Problem 2
+# --- Problem 2 ---
 class Robot(object):
     """
     Represents a robot cleaning a particular room.
@@ -254,7 +254,7 @@ class Robot(object):
         raise NotImplementedError # don't change this!
 
 
-# === Problem 3
+# --- Problem 3 ---
 class StandardRobot(Robot):
     """
     A StandardRobot is a Robot with the standard movement strategy.
@@ -295,7 +295,7 @@ class StandardRobot(Robot):
 # testRobotMovement(StandardRobot, RectangularRoom)
 
 
-# === Problem 4
+# --- Problem 4 ---
 def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
                   robot_type):
     """
@@ -314,13 +314,26 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
     robot_type: class of robot to be instantiated (e.g. StandardRobot or
                 RandomWalkRobot)
     """
-    raise NotImplementedError
+    
+    # initialize the room
 
+    # initialize the robots using a loop
+    
+    # do the movement using a loop of trials
+        # move and clean
+        # check if the room is clean within the percent coverage (helper function)
+        # update a counter    
+        # when the room is cleaned add the total time to a list
+    
+    # statistics: when the trials are complete calculate the mean of all the trials
+    # return the mean
+    
+    
 # Uncomment this line to see how much your simulation takes on average
 ##print(runSimulation(1, 1.0, 10, 10, 0.75, 30, StandardRobot))
 
 
-# === Problem 5
+# --- Problem 5 ---
 class RandomWalkRobot(Robot):
     """
     A RandomWalkRobot is a robot with the "random walk" movement strategy: it
@@ -397,7 +410,7 @@ def showPlot2(title, x_label, y_label):
 #
 
 #===========================================
-# Testing
+#  Testing
 #===========================================
 
 # ==== Playing with Position class ====
@@ -412,25 +425,25 @@ def showPlot2(title, x_label, y_label):
 #currx = pos.getX()
 #print("%0.2f" % currx) # print with precision but leave value intact
 
-# ==== Testing Problem 1 -- Rectangular Room ====
+# --- Testing Problem 1 -- Rectangular Room ---
 
 #random.seed(0) # for predictable testing
 #w = 2
 #h = 2
 #room = RectangularRoom(w,h)
 
-# ---- get numTiles ----
+# ==== get numTiles ====
 #todo = room.getNumTiles()
 #print(str(todo))
 
-# ---- isPositionInRoom ----
+# ==== isPositionInRoom ====
 #x=2.00
 #y=2.00
 #pos = Position(x,y)
 #print(room.isPositionInRoom(pos))
 
-# ---- getRandomPosition, getNumTiles, getNumCleanedTiles,  ---
-# ---- cleanTileAtPosition, isTileCleaned ----
+# ==== getRandomPosition, getNumTiles, getNumCleanedTiles,  ====
+# ==== cleanTileAtPosition, isTileCleaned ====
 
 #for i in range (0,10):
 #    pos = room.getRandomPosition()
@@ -454,7 +467,7 @@ def showPlot2(title, x_label, y_label):
 #        else:
 #            print("still dirty!")
 
-# ====== Testing Problem 2 -- Robot =======
+# --- Testing Problem 2 -- Robot ---
 
 #random.seed(0) # for predictable testing
 #w = 2
@@ -467,32 +480,46 @@ def showPlot2(title, x_label, y_label):
 #print("the position chosen is", newPos)
 #room = RectangularRoom(w,h)
 
-# ----- initializing a Robot -----
+# ==== initializing a Robot ====
 #robbie = Robot(room, speed) 
 #robbie = StandardRobot(room, speed) 
 
-# ---- testing 'getters'----
+# ==== testing 'getters====
 #pos = robbie.getRobotPosition() 
 #direct = robbie.getRobotDirection()
 #print("Initial position, direction are", str(pos), str(direct))
 
-# ---- testing 'setters' ----
+# ==== testing 'setters' ====
 #robbie.setRobotPosition(newPos)
 #robbie.setRobotDirection(newDirection)
 #pos = robbie.getRobotPosition()
 #direct = robbie.getRobotDirection()
 #print("New position, direction are", str(pos), str(direct))
 
-#  --- testing if the initial tile is cleaned ----
+#  ==== testing if the initial tile is cleaned ====
 #(m,n) = room.Tile(pos)
 #if room.isTileCleaned(m,n): # test isTileCleaned
 #    print("initial position clean!")
 #else:
 #    print("initial position dirty!")
     
-# ---- testing Standard Robot updatePositionAndClean ---- #
+# ==== testing Standard Robot updatePositionAndClean ==== 
 #robbie.updatePositionAndClean()
 #pos = robbie.getRobotPosition() 
 #direct = robbie.getRobotDirection()
 #print("New position, direction are", str(pos), str(direct))
 
+# --- Testing Problem 3 -- Run simulation ---
+#One robot takes around 150 clock ticks to completely clean a 5x5 room.
+#1,1,5,5,1.0,30, StandardRobot
+#One robot takes around 190 clock ticks to clean 75% of a 10x10 room.
+#1,1,10,10,0.75,30, StandardRobot
+#One robot takes around 310 clock ticks to clean 90% of a 10x10 room.
+#1,1,10,10,0.9,30, StandardRobot
+#One robot takes around 3322 clock ticks to completely clean a 20x20 room.
+#1,1,20,20,1.0,10, StandardRobot
+#Three robots take around 1105 clock ticks to completely clean a 20x20 room.
+#3,1,20,20,1.0,20, StandardRobot
+
+#runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
+#avg = runSimulation(10, 1.0, 15, 20, 0.8, 30, StandardRobot)
