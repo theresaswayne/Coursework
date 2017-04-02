@@ -265,16 +265,34 @@ class StandardRobot(Robot):
     """
     def updatePositionAndClean(self):
         """
-        Simulate the raise passage of a single time-step.
+        Simulate the passage of a single time-step.
 
         Move the robot to a new position and mark the tile it is on as having
         been cleaned.
         """
-        raise NotImplementedError
+        
+        currPos = self.getRobotPosition()
+        currDir = self.getRobotDirection()        
+        
+        # calculate new position if continuing same direction
+        proposedPos = currPos.getNewPosition(currDir, self.speed)
 
+        #print("current position",currPos)
+        #print("proposed position",proposedPos)
+
+        if self.room.isPositionInRoom(proposedPos): # hitting the wall?
+            #print("that's in the room, so...")
+            self.setRobotPosition(proposedPos) 
+            self.room.cleanTileAtPosition(proposedPos)
+        else:
+            #print("that would hit the wall, so...")
+            newDirection = random.randrange(0,360)
+            #print("new direction",str(newDirection))
+            self.setRobotDirection(newDirection)        
+            
 
 # Uncomment this line to see your implementation of StandardRobot in action!
-##testRobotMovement(StandardRobot, RectangularRoom)
+# testRobotMovement(StandardRobot, RectangularRoom)
 
 
 # === Problem 4
@@ -438,24 +456,25 @@ def showPlot2(title, x_label, y_label):
 
 # ====== Testing Problem 2 -- Robot =======
 
-random.seed(0) # for predictable testing
-w = 2
-h = 2
-speed = 1
-x=1.40
-y=1.60
-newDirection = 95
-newPos = Position(x,y)
+#random.seed(0) # for predictable testing
+#w = 2
+#h = 2
+#speed = 1
+#x=1.40
+#y=1.60
+#newDirection = 95
+#newPos = Position(x,y)
 #print("the position chosen is", newPos)
-room = RectangularRoom(w,h)
+#room = RectangularRoom(w,h)
 
 # ----- initializing a Robot -----
-robbie = Robot(room, speed) 
+#robbie = Robot(room, speed) 
+#robbie = StandardRobot(room, speed) 
 
 # ---- testing 'getters'----
-pos = robbie.getRobotPosition() 
-direct = robbie.getRobotDirection()
-print("Initial position, direction are", str(pos), str(direct))
+#pos = robbie.getRobotPosition() 
+#direct = robbie.getRobotDirection()
+#print("Initial position, direction are", str(pos), str(direct))
 
 # ---- testing 'setters' ----
 #robbie.setRobotPosition(newPos)
@@ -465,10 +484,15 @@ print("Initial position, direction are", str(pos), str(direct))
 #print("New position, direction are", str(pos), str(direct))
 
 #  --- testing if the initial tile is cleaned ----
-(m,n) = room.Tile(pos)
-if room.isTileCleaned(m,n): # test isTileCleaned
-    print("initial position clean!")
-else:
-    print("initial position dirty!")
+#(m,n) = room.Tile(pos)
+#if room.isTileCleaned(m,n): # test isTileCleaned
+#    print("initial position clean!")
+#else:
+#    print("initial position dirty!")
     
+# ---- testing Standard Robot updatePositionAndClean ---- #
+#robbie.updatePositionAndClean()
+#pos = robbie.getRobotPosition() 
+#direct = robbie.getRobotDirection()
+#print("New position, direction are", str(pos), str(direct))
 
