@@ -91,7 +91,28 @@ class RectangularRoom(object):
         self.cleanMap = {tile:False for tile in tileList}
         # print(self.cleanMap)
 
-    
+    def Tile(self, pos):
+        """ 
+        converts the float coordinates in pos to integer coordinates marking a tile
+        pos: a Position
+        returns a tuple of 2 integers m, n denoting a tile (named after the upper left corner)
+        except that the extreme lower right corner is assigned to the nearest tile
+        
+        """
+        # are we at the extreme right edge?
+        if pos.getX() == room.width:
+            m = math.floor(pos.getX() - 1)
+        else:
+            m = math.floor(pos.getX())
+        
+        # are we at the bottom?
+        if pos.getY == room.height:
+            n = math.floor(pos.getY() - 1)
+        else:
+            n = math.floor(pos.getY())
+        
+        return (m, n)
+        
     def cleanTileAtPosition(self, pos):
         """
         Mark the tile under the position POS as cleaned.
@@ -100,17 +121,9 @@ class RectangularRoom(object):
 
         pos: a Position
         """
-        # I think this is where we map positions to tiles
-        # TODO: how to deal with boundaries -- 
-        # Position 0,0 is in the 2x2 room. So is 2,2.
-        # Which tile does each of those belong to?
-        # Which tile does 1,1 belong to?
-        # there are only 4 tiles in the current system.
-        # suggestion: w,h (any with x=w or y=h) belongs to w-1, h-1, 
-        # and the others belong to their floor, because there is a function for floor
-        # so 1.0,1.0 belongs to tile 1,1, so do 1.9, 1.9 and 2.0, 2.0
         
-        raise NotImplementedError
+        (m, n) = self.Tile(pos)
+        self.cleanMap[(m, n)] = True
 
     def isTileCleaned(self, m, n):
         """
@@ -122,9 +135,7 @@ class RectangularRoom(object):
         n: an integer
         returns: True if (m, n) is cleaned, False otherwise
         """
-        raise NotImplementedError
-        
-        # TODO:  this is a simple dict lookup
+        return self.cleanMap[(m,n)]
     
     def getNumTiles(self):
         """
@@ -390,12 +401,27 @@ room = RectangularRoom(w,h)
 x=2
 y=2
 pos = Position(x,y)
-print(room.isPositionInRoom(pos))
+# print(room.isPositionInRoom(pos))
 
 # Testing getRandomPosition
 random.seed(0) # for predictable testing
-for i in range (0,3):
+for i in range (0,10):
     pos = room.getRandomPosition()
-    print(pos, room.isPositionInRoom(pos))
+    x = pos.getX()
+    y = pos.getY()
+    print(pos, "is in room?", room.isPositionInRoom(pos))
+    print("Tile is "+str(room.Tile(pos)))
+    (m,n) = room.Tile(pos)
+
+    if room.isTileCleaned(m,n):
+        print("clean!")
+    else:
+        print("dirty!")
+        if i%2 == 0:
+            room.cleanTileAtPosition(pos)
+        if room.isTileCleaned(m,n):
+            print("now clean!")
+        else:
+            print("still dirty!")
 
 
