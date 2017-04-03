@@ -316,39 +316,51 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
     """
     import numpy as np # as directed by instructions
 
-
-
-    
-    # initialize the room
-    room = RectangularRoom(width, height)
-    
-    # initialize the robots using a loop
-    robots = []
-    for i in range(num_robots):
-        nextRobot = robot_type(room, speed)
-        robots.append(nextRobot)
-    
-    # do the movement using a loop of trials
     completionTimes = []
-    for trial in range(num_trials):
-        timeElapsed = 0
-        # TODO: move and clean
-        # TODO: check if the room is clean within the percent coverage (helper function)
 
-        # update a time counter
-        timeElapsed += 1
+    for trial in range(num_trials):
         
-        # when the room is cleaned add the total time to a list
-        coverage = room.getNumCleanedTiles()/room.getNumTiles()
-        if coverage >= min_coverage:
-               completionTimes.append(timeElapsed)
-               continue # go to the next trial
+        anim = ps2_visualize.RobotVisualization(num_robots, width, height) # visualization -- do not submit
+        
+        # for slower animation, add pause between frames (sec), default 0.2
+        #anim = ps2_visualize.RobotVisualization(num_robots, width, height, delay)
+        # make a new room
+        room = RectangularRoom(width, height)
+        
+        # make the robots
+        robots = []
+        for i in range(num_robots):
+            nextRobot = robot_type(room, speed)
+            robots.append(nextRobot)        
+        #print("created",num_robots,"robots")
+        
+        timeElapsed = 0
+        coverage = 0        
+        
+        while coverage < min_coverage:
+            
+            #print("at time=",str(timeElapsed), "coverage=", str(coverage))
+            # move each robot
+            for robot in robots:
+                anim.update(room, robots) # visualization -- do not submit
+                robot.updatePositionAndClean()
+            
+            coverage = room.getNumCleanedTiles()/room.getNumTiles()
+    
+            # update time counter
+            timeElapsed += 1
+            
+        anim.done() # visualization -- do not submit
+        # when the room is clean enough, add the total time to a list
+        completionTimes.append(timeElapsed)
+        #print("trial",str(trial),"completion time",str(timeElapsed))
+        
 
     # statistics: when the trials are complete return the mean of all the trials
     return np.mean(completionTimes)
     
 # Uncomment this line to see how much your simulation takes on average
-##print(runSimulation(1, 1.0, 10, 10, 0.75, 30, StandardRobot))
+#print(runSimulation(1, 1.0, 10, 10, 0.75, 30, StandardRobot))
 
 
 # --- Problem 5 ---
@@ -364,7 +376,27 @@ class RandomWalkRobot(Robot):
         Move the robot to a new position and mark the tile it is on as having
         been cleaned.
         """
-        raise NotImplementedError
+        currPos = self.getRobotPosition()
+        currDir = self.getRobotDirection()
+        newDirection = random.randrange(0,360)
+        self.setRobotDirection(newDirection)        
+        
+        # calculate new position if continuing in that new direction
+        proposedPos = currPos.getNewPosition(newDirection, self.speed)
+
+        #print("current position",currPos)
+        #print("proposed position",proposedPos)
+
+        if self.room.isPositionInRoom(proposedPos): # hitting the wall?
+            #print("that's in the room, so...")
+            self.setRobotPosition(proposedPos) 
+            self.room.cleanTileAtPosition(proposedPos)
+        else:
+            #print("that would hit the wall, so...")
+            newDirection = random.randrange(0,360)
+            #print("new direction",str(newDirection))
+            self.setRobotDirection(newDirection)        
+            
 
 
 def showPlot1(title, x_label, y_label):
@@ -539,5 +571,8 @@ def showPlot2(title, x_label, y_label):
 #Three robots take around 1105 clock ticks to completely clean a 20x20 room.
 #3,1,20,20,1.0,20, StandardRobot
 
+print(runSimulation(3, 1.0, 5, 5, 1.0, 1, RandomWalkRobot))
+
 #runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
 #avg = runSimulation(10, 1.0, 15, 20, 0.8, 30, StandardRobot)
+#print(str(avg))
