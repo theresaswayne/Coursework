@@ -314,20 +314,38 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
     robot_type: class of robot to be instantiated (e.g. StandardRobot or
                 RandomWalkRobot)
     """
+    import numpy as np # as directed by instructions
+
+
+
     
     # initialize the room
-
+    room = RectangularRoom(width, height)
+    
     # initialize the robots using a loop
+    robots = []
+    for i in range(num_robots):
+        nextRobot = robot_type(room, speed)
+        robots.append(nextRobot)
     
     # do the movement using a loop of trials
-        # move and clean
-        # check if the room is clean within the percent coverage (helper function)
-        # update a counter    
+    completionTimes = []
+    for trial in range(num_trials):
+        timeElapsed = 0
+        # TODO: move and clean
+        # TODO: check if the room is clean within the percent coverage (helper function)
+
+        # update a time counter
+        timeElapsed += 1
+        
         # when the room is cleaned add the total time to a list
-    
-    # statistics: when the trials are complete calculate the mean of all the trials
-    # return the mean
-    
+        coverage = room.getNumCleanedTiles()/room.getNumTiles()
+        if coverage >= min_coverage:
+               completionTimes.append(timeElapsed)
+               continue # go to the next trial
+
+    # statistics: when the trials are complete return the mean of all the trials
+    return np.mean(completionTimes)
     
 # Uncomment this line to see how much your simulation takes on average
 ##print(runSimulation(1, 1.0, 10, 10, 0.75, 30, StandardRobot))
