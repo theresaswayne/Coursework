@@ -320,7 +320,7 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
 
     for trial in range(num_trials):
         
-        anim = ps2_visualize.RobotVisualization(num_robots, width, height) # visualization -- do not submit
+        #anim = ps2_visualize.RobotVisualization(num_robots, width, height) # visualization -- do not submit
         
         # for slower animation, add pause between frames (sec), default 0.2
         #anim = ps2_visualize.RobotVisualization(num_robots, width, height, delay)
@@ -342,7 +342,7 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
             #print("at time=",str(timeElapsed), "coverage=", str(coverage))
             # move each robot
             for robot in robots:
-                anim.update(room, robots) # visualization -- do not submit
+                #anim.update(room, robots) # visualization -- do not submit
                 robot.updatePositionAndClean()
             
             coverage = room.getNumCleanedTiles()/room.getNumTiles()
@@ -350,7 +350,7 @@ def runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
             # update time counter
             timeElapsed += 1
             
-        anim.done() # visualization -- do not submit
+        #anim.done() # visualization -- do not submit
         # when the room is clean enough, add the total time to a list
         completionTimes.append(timeElapsed)
         #print("trial",str(trial),"completion time",str(timeElapsed))
@@ -427,7 +427,7 @@ def showPlot2(title, x_label, y_label):
     times1 = []
     times2 = []
     for width in [10, 20, 25, 50]:
-        height = 300//width
+        height = 300//width # constant area -- truncates to integer
         print("Plotting cleaning time for a room of width:", width, "by height:", height)
         aspect_ratios.append(float(width) / height)
         times1.append(runSimulation(2, 1.0, width, height, 0.8, 200, StandardRobot))
@@ -553,13 +553,13 @@ def showPlot2(title, x_label, y_label):
 #else:
 #    print("initial position dirty!")
     
-# ==== testing Standard Robot updatePositionAndClean ==== 
+# --- Testing Problem 3 -- Standard Robot updatePositionAndClean --- 
 #robbie.updatePositionAndClean()
 #pos = robbie.getRobotPosition() 
 #direct = robbie.getRobotDirection()
 #print("New position, direction are", str(pos), str(direct))
 
-# --- Testing Problem 3 -- Run simulation ---
+# --- Testing Problem 4 -- Run simulation ---
 #One robot takes around 150 clock ticks to completely clean a 5x5 room.
 #1,1,5,5,1.0,30, StandardRobot
 #One robot takes around 190 clock ticks to clean 75% of a 10x10 room.
@@ -571,8 +571,15 @@ def showPlot2(title, x_label, y_label):
 #Three robots take around 1105 clock ticks to completely clean a 20x20 room.
 #3,1,20,20,1.0,20, StandardRobot
 
-print(runSimulation(3, 1.0, 5, 5, 1.0, 1, RandomWalkRobot))
+# --- Testing Problem 5 -- Random Walk Robot --- 
+#print(runSimulation(3, 1.0, 5, 5, 1.0, 1, RandomWalkRobot))
 
 #runSimulation(num_robots, speed, width, height, min_coverage, num_trials,
 #avg = runSimulation(10, 1.0, 15, 20, 0.8, 30, StandardRobot)
 #print(str(avg))
+
+# --- Testing Problem 6 -- Plotting --- 
+
+#showPlot1("Effect of more robots on cleaning time","number of robots","average time to clean 80% of room")
+
+#showPlot2("Effect of aspect ratio on cleaning time","Room aspect ratio","average time to clean 80% of room")
