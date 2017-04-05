@@ -79,21 +79,21 @@ def findPocketReturn(game, numTrials, trialSize, toPrint):
         pocketReturns.append(trialVals[2])
     return pocketReturns
 
-random.seed(0)
-numTrials = 20
-resultDict = {}
-games = (FairRoulette, EuRoulette, AmRoulette)
-for G in games:
-    resultDict[G().__str__()] = []
-for numSpins in (100, 1000, 10000, 100000):
-    print('\nSimulate betting a pocket for', numTrials,
-          'trials of',
-          numSpins, 'spins each')
-    for G in games:
-        pocketReturns = findPocketReturn(G(), numTrials,
-                                         numSpins, False)
-        print('Exp. return for', G(), '=',
-             str(100*sum(pocketReturns)/float(len(pocketReturns))) + '%')
+#random.seed(0)
+#numTrials = 20
+#resultDict = {}
+#games = (FairRoulette, EuRoulette, AmRoulette)
+#for G in games:
+#    resultDict[G().__str__()] = []
+#for numSpins in (100, 1000, 10000, 100000):
+#    print('\nSimulate betting a pocket for', numTrials,
+#          'trials of',
+#          numSpins, 'spins each')
+#    for G in games:
+#        pocketReturns = findPocketReturn(G(), numTrials,
+#                                         numSpins, False)
+#        print('Exp. return for', G(), '=',
+#             str(100*sum(pocketReturns)/float(len(pocketReturns))) + '%')
 
 def getMeanAndStd(X):
     mean = sum(X)/float(len(X))
@@ -137,7 +137,7 @@ def plotReturn(resultDict):
     pylab.semilogx()
     minX, maxX = pylab.xlim()
     pylab.xlim(1, maxX + 100000)
-#    
+    
 #plotReturn(resultDict)
 #assert False
 

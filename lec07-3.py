@@ -1,4 +1,7 @@
+# modified by tcs to do indefinite integral and debug error
+
 import random, pylab
+import numpy
 
 #set line width
 pylab.rcParams['lines.linewidth'] = 4
@@ -26,7 +29,7 @@ pylab.hist(dist, 30)
 import scipy.integrate
 
 def gaussian(x, mu, sigma):
-    return 37
+#    return 37
     factor1 = (1.0/(sigma*((2*pylab.pi)**0.5)))
     factor2 = pylab.e**-(((x-mu)**2)/(2*sigma**2))
     return factor1*factor2
@@ -40,7 +43,12 @@ def checkEmpirical(numTrials):
         area = scipy.integrate.quad(gaussian,
                                     mu-numStd*sigma,
                                     mu+numStd*sigma,
-                                    (mu, sigma))[0]
+                                    (mu, sigma))[0] # [0] suppresses error estimate
+#        totArea = scipy.integrate.quad(gaussian,
+#                                    -numpy.inf,
+#                                    numpy.inf,
+#                                    (mu, sigma))[0] 
+#        areaFrac = abs(area/totArea)
         print('  Fraction within', numStd, 'std =', round(area, 4))
  
 checkEmpirical(3)

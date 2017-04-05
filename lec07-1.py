@@ -1,13 +1,17 @@
+# comments added by tcs
+
 import random
 
 class FairRoulette():
     def __init__(self):
         self.pockets = []
         for i in range(1,37):
-            self.pockets.append(i)
+            self.pockets.append(i) # list of pockets
         self.ball = None
-        self.blackOdds, self.redOdds = 1.0, 1.0
-        self.pocketOdds = len(self.pockets) - 1.0
+        self.blackOdds, self.redOdds = 1.0, 1.0 # payoff (fair = no profit for house)
+        self.pocketOdds = len(self.pockets) - 1.0 # payoff 
+        # (imagine that the wheel had only two pockets.
+        # If you pick the right pocket, you should win $1, not $2.)
     def spin(self):
         self.ball = random.choice(self.pockets)
     def isBlack(self):
@@ -54,7 +58,7 @@ def playRoulette(game, numSpins, toPrint = True):
               str(100*totPocket/numSpins) + '%\n')
     return (totRed/numSpins, totBlack/numSpins, totPocket/numSpins)
 
-numSpins = 1000000
+numSpins = 100000
 game = FairRoulette()
 playRoulette(game, numSpins)
 
