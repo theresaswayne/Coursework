@@ -39,13 +39,13 @@ sampleSizes = range(10, 500, 50)
 
 def clt():
     for sampleSize in sampleSizes:
-        sampleMeans = []
-        for t in range(20):
-            sample = ## FILL THIS IN
-            sampleMeans.append(getMeanAndStd(sample)[0])
-        ## FILL IN TWO LINES
-        ## WHAT TO DO WITH THE SAMPLE MEANS?
-
+        sampleMeans = [] 
+        for t in range(20):   # ?trials?
+            sample = flipCoin(sampleSize) 
+            sampleMeans.append(getMeanAndStd(sample)[0]) # save the mean only
+        meanOfMeans.append(getMeanAndStd(sampleMeans)[0])
+        stdOfMeans.append(getMeanAndStd(sampleMeans)[1])
+       
 clt()
 pylab.figure(1)
 pylab.errorbar(sampleSizes, meanOfMeans,

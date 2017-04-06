@@ -43,7 +43,7 @@ def checkEmpirical(numTrials):
         area = scipy.integrate.quad(gaussian,
                                     mu-numStd*sigma,
                                     mu+numStd*sigma,
-                                    (mu, sigma))[0] # [0] suppresses error estimate
+                                    (mu, sigma))[0] # [0] get only the area -- no error estimate
 #        totArea = scipy.integrate.quad(gaussian,
 #                                    -numpy.inf,
 #                                    numpy.inf,

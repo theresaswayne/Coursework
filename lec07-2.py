@@ -103,23 +103,23 @@ def getMeanAndStd(X):
     std = (tot/len(X))**0.5
     return mean, std
 
-#random.seed(0)
-#numTrials = 20
-#resultDict = {}
-#games = (FairRoulette, EuRoulette, AmRoulette)
-#for G in games:
-#    resultDict[G().__str__()] = []
-#for numSpins in (100, 1000, 10000):
-#    print('\nSimulate betting a pocket for', numTrials,
-#          'trials of', numSpins, 'spins each')
-#    for G in games:
-#        pocketReturns = findPocketReturn(G(), 20, numSpins, False)
-#        mean, std = getMeanAndStd(pocketReturns)
-#        resultDict[G().__str__()].append((numSpins,
-#                                          100*mean, 100*std))
-#        print('Exp. return for', G(), '=', str(round(100*mean, 3))
-#              + '%,', '+/- ' + str(round(100*1.96*std, 3))
-#              + '% with 95% confidence')
+random.seed(0)
+numTrials = 20
+resultDict = {}
+games = (FairRoulette, EuRoulette, AmRoulette)
+for G in games:
+    resultDict[G().__str__()] = []
+for numSpins in (100, 1000, 10000):
+    print('\nSimulate betting a pocket for', numTrials,
+          'trials of', numSpins, 'spins each')
+    for G in games:
+        pocketReturns = findPocketReturn(G(), 20, numSpins, False)
+        mean, std = getMeanAndStd(pocketReturns)
+        resultDict[G().__str__()].append((numSpins,
+                                          100*mean, 100*std))
+        print('Exp. return for', G(), '=', str(round(100*mean, 3))
+              + '%,', '+/- ' + str(round(100*1.96*std, 3))
+              + '% with 95% confidence')
               
 
 def plotReturn(resultDict):
