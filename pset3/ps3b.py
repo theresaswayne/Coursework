@@ -2,6 +2,12 @@
 
 import random
 import pylab
+import numpy as np
+
+# for comparison, to get "correct" results from 
+# SimpleVirus, Patient, ResistantVirus, TreatedPatient:
+# comment out all those classes, then uncomment the following:
+# from ps3b_precompiled_35 import *
 
 ''' 
 Begin helper code
@@ -20,7 +26,7 @@ End helper code
 '''
 
 #
-# PROBLEM 1
+# --- PROBLEM 1 --- 
 #
 class SimpleVirus(object):
 
@@ -87,6 +93,10 @@ class Patient(object):
     """
     Representation of a simplified patient. The patient does not take any drugs
     and his/her virus populations have no drug resistance.
+    When defining a Patient class member variable 
+    to store the viruses list representing the virus population, 
+    please use the name self.viruses in order for your code 
+    to be compatible with the grader
     """    
 
     def __init__(self, viruses, maxPop):
@@ -149,7 +159,7 @@ class Patient(object):
 
 
 #
-# PROBLEM 2
+# --- PROBLEM 2 ---
 #
 def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
                           numTrials):
@@ -172,7 +182,7 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
 
 
 #
-# PROBLEM 3
+# --- PROBLEM 3 ---
 #
 class ResistantVirus(SimpleVirus):
     """
@@ -275,6 +285,7 @@ class ResistantVirus(SimpleVirus):
         # TODO
 
             
+# --- PROBLEM 4 ---
 
 class TreatedPatient(Patient):
     """
@@ -363,7 +374,7 @@ class TreatedPatient(Patient):
 
 
 #
-# PROBLEM 4
+# --- PROBLEM 5 ---
 #
 def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
                        mutProb, numTrials):
