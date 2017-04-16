@@ -14,6 +14,9 @@ Created on Sat Apr 15 22:30:02 2017
 
 # If the first song doesn't fit on disk, return an empty list. 
 
+# sorted using python docs sorting HOWTO example
+# sorting a list of tuples by the 3rd element
+
 # this is an 0/1 knapsack problem
 # asking for a greedy algorithm
 
@@ -44,16 +47,16 @@ def song_playlist(songs, max_size):
         del songs_remaining[0]
     
     # sort the remaining songs
-    # using python docs sorting HOWTO
-    # sorting a list of tuples by the 3rd element
     list.sort(songs_remaining, key=lambda song: song[2]) 
-    print("remaining: ",songs_remaining)
     
-    # TODO: go through the sorted list by index
-    # if playlist size would be too big then quit and return playlist
-    # if not, append the song name, add size to total, 
-    # (?) remove the song <-- probably not necessary
-    
+    for song in songs_remaining:
+        if playlist_size + song[2] > max_size:
+            return playlist # up until now
+        else:
+            playlist.append(song[0]) # the song title
+            playlist_size += song[2]
+            
+    # now we have added all available songs
     return playlist
 
 # --- testing --- 
@@ -65,6 +68,9 @@ a = [('a',1.0,1.0),('b',2.0,1.0),('c',1.0,2.0)]
 #print(song_playlist(a, len1))
 
 len2 = 2.0
+len2 = 10.0
+len2 = 0.5
+
 print("for a filesize of",str(len2),"we have:")
 print(song_playlist(a, len2))
 
