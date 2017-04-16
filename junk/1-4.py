@@ -16,4 +16,34 @@ def greedySum(L, s):
                 not yield a set of multipliers such that the equation sums to 's'
     """
     
+    # iterate through L as L[i]
+    import math
+    total = 0
+    sum_mult = 0
     
+    for i in L:
+        
+        m_test = math.floor((s-total)/i)
+        if total + (i*m_test) == s:
+            # finished
+            total += i*m_test
+            sum_mult += m_test
+            return sum_mult
+        elif total > s:
+            # continue to the next element of L (???)
+            continue
+        elif total < s:
+            # keep going
+            total += i*m_test
+            sum_mult += m_test
+    
+    # at this point we have tried all of L
+    return "no solution"
+        
+        
+# --- testing ---
+
+L = [10,9,8,5,2]
+s = 2042
+print("the solution is",greedySum(L, s))
+

@@ -14,5 +14,15 @@ Created on Sat Apr 15 23:25:49 2017
 def max_contig_sum(L):
     """ L, a list of integers, at least one positive
     Returns the maximum sum of a contiguous subsequence in L """
-    #YOUR CODE HERE
     
+    
+    # ?? generate all subsequences and sums
+    # every subsequence except those of len 1 is the combo of other sequences
+    
+    def max_sum(L_remaining, seqSum, memo = {}):
+        ''' L_remaining, a list of integers
+            seqSum, a memo supplied by recursive calls per lec02-3
+            Returns the maximum sum of a contiguous subsequence in L_remaining
+        '''
+        
+        
