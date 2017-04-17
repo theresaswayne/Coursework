@@ -7,6 +7,7 @@ import numpy as np
 # for comparison, to get "correct" results from 
 # SimpleVirus, Patient, ResistantVirus, TreatedPatient:
 # comment out all those classes, then uncomment the following:
+# (note requires pytnon 35 doesn't work with 36)
 # from ps3b_precompiled_35 import *
 
 ''' 
@@ -28,6 +29,46 @@ End helper code
 #
 # --- PROBLEM 1 --- 
 #
+
+# TODO: Test: class Patient 2
+#Create a Patient with virus that is never cleared and always reproduces
+#Your output:
+#virus = SimpleVirus(1.0, 0.0)
+#patient = Patient([virus], 100)
+#Updating the patient for 100 trials...
+#patient.update implemented incorrectly
+#patient.getTotalPop() expected to be >= 100; got 99
+#Correct output:
+#virus = SimpleVirus(1.0, 0.0)
+#patient = Patient([virus], 100)
+#Updating the patient for 100 trials...
+#patient.getTotalPop() expected to be >= 100
+#Test successfully completed
+
+# TODO: Test: class Patient 5
+#Check exception handling by raising different types of exceptions in SimpleVirus.reproduce
+#Your output:
+#Fail: Your Patient.update method caught an exception of type ZeroDivisionError when it shouldn't have.
+#You should never use bare `except` clauses in your code. Only catch 'NoChildException'.
+#Fail: Your Patient.update method caught an exception of type ValueError when it shouldn't have.
+#You should never use bare `except` clauses in your code. Only catch 'NoChildException'.
+#Fail: Your Patient.update method caught an exception of type TypeError when it shouldn't have.
+#You should never use bare `except` clauses in your code. Only catch 'NoChildException'.
+#Fail: Your Patient.update method caught an exception of type NameError when it shouldn't have.
+#You should never use bare `except` clauses in your code. Only catch 'NoChildException'.
+#Fail: Your Patient.update method caught an exception of type AttributeError when it shouldn't have.
+#You should never use bare `except` clauses in your code. Only catch 'NoChildException'.
+#Successfully caught raised 'NoChildException'
+#Test Completed
+#Correct output:
+#Successfully ignored raised exception of type: ZeroDivisionError
+#Successfully ignored raised exception of type: ValueError
+#Successfully ignored raised exception of type: TypeError
+#Successfully ignored raised exception of type: NameError
+#Successfully ignored raised exception of type: AttributeError
+#Successfully caught raised 'NoChildException'
+#Test Completed
+
 class SimpleVirus(object):
 
     """
@@ -41,19 +82,20 @@ class SimpleVirus(object):
         clearProb: Maximum clearance probability (a float between 0-1).
         """
 
-        # TODO
-
+        self.maxBirthProb = maxBirthProb
+        self.clearProb = clearProb
+        
     def getMaxBirthProb(self):
         """
         Returns the max birth probability.
         """
-        # TODO
+        return self.maxBirthProb
 
     def getClearProb(self):
         """
         Returns the clear probability.
         """
-        # TODO
+        return self.clearProb
 
     def doesClear(self):
         """ Stochastically determines whether this virus particle is cleared from the
@@ -61,10 +103,12 @@ class SimpleVirus(object):
         returns: True with probability self.getClearProb and otherwise returns
         False.
         """
+        x = random.random()
+        if x <= self.getClearProb():
+            return True
+        else:
+            return False
 
-        # TODO
-
-    
     def reproduce(self, popDensity):
         """
         Stochastically determines whether this virus particle reproduces at a
@@ -85,7 +129,11 @@ class SimpleVirus(object):
         NoChildException if this virus particle does not reproduce.               
         """
 
-        # TODO
+        x = random.random()
+        if x <= (self.maxBirthProb*(1-popDensity)):
+            return SimpleVirus(self.getMaxBirthProb(),self.getClearProb())
+        else:
+            raise NoChildException()
 
 
 
@@ -110,20 +158,21 @@ class Patient(object):
         maxPop: the maximum virus population for this patient (an integer)
         """
 
-        # TODO
+        self.viruses = viruses
+        self.maxPop = maxPop
 
     def getViruses(self):
         """
         Returns the viruses in this Patient.
         """
-        # TODO
+        return self.viruses
 
 
     def getMaxPop(self):
         """
         Returns the max population.
         """
-        # TODO
+        return self.maxPop
 
 
     def getTotalPop(self):
@@ -132,7 +181,7 @@ class Patient(object):
         returns: The total virus population (an integer)
         """
 
-        # TODO        
+        return len(self.viruses)       
 
 
     def update(self):
@@ -154,10 +203,40 @@ class Patient(object):
         integer)
         """
 
-        # TODO
+        viruses = self.getViruses()[:] # copy of list
+        
+        # testing
+        clearedCount = 0
+        reproCount = 0
+        
+        # check for clearance        
+        for particle in viruses:
+            if particle.doesClear():
 
+                # testing
+                clearedCount +=1
 
+                self.viruses.remove(particle) # from original list
 
+        # decide reproduction based on new density
+        
+        popDensity = len(viruses)/self.getMaxPop()
+                
+        # check for reproduction
+        unclearedViruses = self.getViruses()[:]
+        for particle in unclearedViruses: # copy of list
+            try:
+                particle.reproduce(popDensity)
+                self.viruses.append(particle.reproduce(popDensity)) # the attribute
+
+                # testing
+                reproCount += 1
+
+            except:
+                continue
+        
+        return len(self.viruses)
+                    
 #
 # --- PROBLEM 2 ---
 #
@@ -284,9 +363,9 @@ class ResistantVirus(SimpleVirus):
 
         # TODO
 
-            
+#            
 # --- PROBLEM 4 ---
-
+#
 class TreatedPatient(Patient):
     """
     Representation of a patient. The patient is able to take drugs and his/her
@@ -400,3 +479,43 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
     """
 
     # TODO
+
+# --- testing simpleVirus ---
+
+birth = 0.95
+clear = 0.01
+popDensity = 0.5
+simp = SimpleVirus(birth,clear)
+
+# testing getters
+#print("Max birth probability:",simp.getMaxBirthProb())
+#print("Clear probability:",simp.getClearProb())
+
+# testing doesClear
+#for i in range(1,10):
+#    print("trial",i,"clearance:",simp.doesClear())
+
+# testing reproduce
+#for i in range(1,10):
+#    print("trial",i,"reproduction:")
+#    simp.reproduce(popDensity)
+
+# --- testing Patient ---
+
+
+viruses = []
+numViruses = 50
+maxPop = 100
+
+# create a list of identical viruses
+for i in range(numViruses):
+    viruses.append(SimpleVirus(birth,clear))
+
+# create patient
+pat = Patient(viruses, maxPop)
+
+#print("viruses in patient",pat.getTotalPop())
+#print("max viruses in patient",pat.getMaxPop())
+
+for i in range(1,10):
+    pat.update()
