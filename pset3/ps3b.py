@@ -13,7 +13,6 @@ import numpy as np
 ''' 
 Begin helper code
 '''
-
 class NoChildException(Exception):
     """
     NoChildException is raised by the reproduce() method in the SimpleVirus
@@ -21,7 +20,6 @@ class NoChildException(Exception):
     reproduce. You can use NoChildException as is, you do not need to
     modify/add any code.
     """
-
 '''
 End helper code
 '''
@@ -128,9 +126,8 @@ class SimpleVirus(object):
         maxBirthProb and clearProb values as this virus. Raises a
         NoChildException if this virus particle does not reproduce.               
         """
-
         x = random.random()
-        if x <= (self.maxBirthProb*(1-popDensity)):
+        if x <= (self.getMaxBirthProb()*(1-popDensity)):
             return SimpleVirus(self.getMaxBirthProb(),self.getClearProb())
         else:
             raise NoChildException()
@@ -232,9 +229,9 @@ class Patient(object):
                 # testing
                 reproCount += 1
 
-            except:
+            except NoChildException:
                 continue
-        
+        # print(clearedCount,"cleared and",reproCount,"reproduced")
         return len(self.viruses)
                     
 #
@@ -257,8 +254,6 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
     """
 
     # TODO
-
-
 
 #
 # --- PROBLEM 3 ---
@@ -482,8 +477,8 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
 
 # --- testing simpleVirus ---
 
-birth = 0.95
-clear = 0.01
+birth = 1.0
+clear = 0.0
 popDensity = 0.5
 simp = SimpleVirus(birth,clear)
 
@@ -508,14 +503,17 @@ numViruses = 50
 maxPop = 100
 
 # create a list of identical viruses
-for i in range(numViruses):
-    viruses.append(SimpleVirus(birth,clear))
+#for i in range(numViruses):
+#    viruses.append(SimpleVirus(birth,clear))
+
 
 # create patient
-pat = Patient(viruses, maxPop)
+pat = Patient([simp], maxPop)
 
 #print("viruses in patient",pat.getTotalPop())
 #print("max viruses in patient",pat.getMaxPop())
 
-for i in range(1,10):
+for i in range(1,100):
     pat.update()
+#    print("viruses in patient",pat.getTotalPop())
+    
