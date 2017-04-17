@@ -61,19 +61,19 @@ def fastMaxVal(toConsider, avail, memo = {}):
          memo supplied by recursive calls
        Returns a tuple of the total value of a solution to the
          0/1 knapsack problem and the subjects of that solution"""
-    if (len(toConsider), avail) in memo:
-        result = memo[(len(toConsider), avail)]
+    if (len(toConsider), avail) in memo: # have you already totaled that solution
+        result = memo[(len(toConsider), avail)] # look up the total
     elif toConsider == [] or avail == 0:
         result = (0, ())
-    elif toConsider[0].getCost() > avail:
+    elif toConsider[0].getCost() > avail: # can't take
         #Explore right branch only
-        result = fastMaxVal(toConsider[1:], avail, memo)
+        result = fastMaxVal(toConsider[1:], avail, memo)  # recursion
     else:
-        nextItem = toConsider[0]
+        nextItem = toConsider[0] 
         #Explore left branch
         withVal, withToTake =\
                  fastMaxVal(toConsider[1:],
-                            avail - nextItem.getCost(), memo)
+                            avail - nextItem.getCost(), memo) # recursion
         withVal += nextItem.getValue()
         #Explore right branch
         withoutVal, withoutToTake = fastMaxVal(toConsider[1:],
@@ -83,7 +83,7 @@ def fastMaxVal(toConsider, avail, memo = {}):
             result = (withVal, withToTake + (nextItem,))
         else:
             result = (withoutVal, withoutToTake)
-    memo[(len(toConsider), avail)] = result
+    memo[(len(toConsider), avail)] = result # update memo dictionary
     return result
 
 def testMaxVal(foods, maxUnits, algorithm, printItems = True):
