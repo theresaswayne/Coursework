@@ -4,6 +4,8 @@ import random
 import pylab
 import numpy as np
 
+# random.seed(0)
+
 # for comparison, to get "correct" results from 
 # SimpleVirus, Patient, ResistantVirus, TreatedPatient:
 # comment out all those classes, then uncomment the following:
@@ -42,30 +44,6 @@ End helper code
 #Updating the patient for 100 trials...
 #patient.getTotalPop() expected to be >= 100
 #Test successfully completed
-
-# TODO: Test: class Patient 5
-#Check exception handling by raising different types of exceptions in SimpleVirus.reproduce
-#Your output:
-#Fail: Your Patient.update method caught an exception of type ZeroDivisionError when it shouldn't have.
-#You should never use bare `except` clauses in your code. Only catch 'NoChildException'.
-#Fail: Your Patient.update method caught an exception of type ValueError when it shouldn't have.
-#You should never use bare `except` clauses in your code. Only catch 'NoChildException'.
-#Fail: Your Patient.update method caught an exception of type TypeError when it shouldn't have.
-#You should never use bare `except` clauses in your code. Only catch 'NoChildException'.
-#Fail: Your Patient.update method caught an exception of type NameError when it shouldn't have.
-#You should never use bare `except` clauses in your code. Only catch 'NoChildException'.
-#Fail: Your Patient.update method caught an exception of type AttributeError when it shouldn't have.
-#You should never use bare `except` clauses in your code. Only catch 'NoChildException'.
-#Successfully caught raised 'NoChildException'
-#Test Completed
-#Correct output:
-#Successfully ignored raised exception of type: ZeroDivisionError
-#Successfully ignored raised exception of type: ValueError
-#Successfully ignored raised exception of type: TypeError
-#Successfully ignored raised exception of type: NameError
-#Successfully ignored raised exception of type: AttributeError
-#Successfully caught raised 'NoChildException'
-#Test Completed
 
 class SimpleVirus(object):
 
@@ -127,7 +105,8 @@ class SimpleVirus(object):
         NoChildException if this virus particle does not reproduce.               
         """
         x = random.random()
-        if x <= (self.getMaxBirthProb()*(1-popDensity)):
+        p = self.getMaxBirthProb()*(1.0-popDensity)
+        if x <= p:
             return SimpleVirus(self.getMaxBirthProb(),self.getClearProb())
         else:
             raise NoChildException()
@@ -231,7 +210,7 @@ class Patient(object):
 
             except NoChildException:
                 continue
-        # print(clearedCount,"cleared and",reproCount,"reproduced")
+#        print(clearedCount,"cleared and",reproCount,"reproduced")
         return len(self.viruses)
                     
 #
@@ -479,27 +458,35 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
 
 birth = 1.0
 clear = 0.0
-popDensity = 0.5
+popDensity = 0.99
 simp = SimpleVirus(birth,clear)
 
 # testing getters
-#print("Max birth probability:",simp.getMaxBirthProb())
-#print("Clear probability:",simp.getClearProb())
+print("Max birth probability:",simp.getMaxBirthProb())
+print("Clear probability:",simp.getClearProb())
+print("Population density:",popDensity)
 
 # testing doesClear
-#for i in range(1,10):
+#for i in range(1,100):
 #    print("trial",i,"clearance:",simp.doesClear())
 
 # testing reproduce
-#for i in range(1,10):
-#    print("trial",i,"reproduction:")
-#    simp.reproduce(popDensity)
+#noRepro = 0
+#for i in range(1,100):
+#    try:
+#        print("trial",i)
+#        simp.reproduce(popDensity)
+#    except NoChildException:
+#        noRepro += 1
+#        continue
+#print("no reproduction in",noRepro,"trials")
+
 
 # --- testing Patient ---
 
 
-viruses = []
-numViruses = 50
+#viruses = []
+#numViruses = 50
 maxPop = 100
 
 # create a list of identical viruses
@@ -515,5 +502,5 @@ pat = Patient([simp], maxPop)
 
 for i in range(1,100):
     pat.update()
-#    print("viruses in patient",pat.getTotalPop())
+    print("viruses in patient",pat.getTotalPop())
     
