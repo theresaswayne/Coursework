@@ -1,8 +1,10 @@
 # Problem Set 3: Simulating the Spread of Disease and Virus Population Dynamics 
 
 import random
-import pylab
+#import matplotlib.pyplot as plt
 import numpy as np
+import pylab
+# pylab is a single namespace for numpy and matplotlib but the matplotlib docs recommend separate import
 
 # random.seed(0)
 
@@ -281,14 +283,35 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
         for j in range(numTrials):
             sumTrials += resultsByTrial[j][i] # the ith timepoint in the jth trial
         timeAverage = sumTrials/numTrials
-        print("average for time",i,"=",timeAverage)
+        # print("average for time",i,"=",timeAverage)
         averageByTime.append(timeAverage)
     
     # plot:
-        # x (time (h)) = range from 0 to timesteps
-        # y (virus per patient) = averages
-        # title = Virus population in untreated patient
-        # legend = Virus population per patient, average of numTrials trials
+#    #set line width
+##    plt.rcParams['lines.linewidth'] = 2
+#    #set font size for titles 
+##    plt.rcParams['axes.titlesize'] = 12
+#    #set font size for labels on axes
+##    plt.rcParams['axes.labelsize'] = 12
+#    #set size of numbers on x-axis
+##    plt.rcParams['xtick.labelsize'] = 10
+#    #set size of numbers on y-axis
+#    plt.rcParams['ytick.labelsize'] = 10
+#    #set size of ticks on x-axis
+#    plt.rcParams['xtick.major.size'] = 5
+#    #set size of ticks on y-axis
+#    plt.rcParams['ytick.major.size'] = 5
+#    #set size of markers, e.g., circles representing points
+#    #set numpoints for legend
+#    plt.rcParams['legend.numpoints'] = 1
+
+    pylab.figure(1)
+    pylab.plot(range(timesteps), averageByTime, label = 'Virus population') # simple plot
+    pylab.title('Virus population in untreated patient')
+    pylab.xlabel('time, h')
+    pylab.ylabel('No. of viruses, average of '+str(numTrials)+' trials')
+    pylab.legend(loc='best')
+    pylab.show()
 
     return
 #
