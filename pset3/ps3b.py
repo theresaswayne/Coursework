@@ -30,21 +30,6 @@ End helper code
 # --- PROBLEM 1 --- 
 #
 
-# TODO: Test: class Patient 2
-#Create a Patient with virus that is never cleared and always reproduces
-#Your output:
-#virus = SimpleVirus(1.0, 0.0)
-#patient = Patient([virus], 100)
-#Updating the patient for 100 trials...
-#patient.update implemented incorrectly
-#patient.getTotalPop() expected to be >= 100; got 99
-#Correct output:
-#virus = SimpleVirus(1.0, 0.0)
-#patient = Patient([virus], 100)
-#Updating the patient for 100 trials...
-#patient.getTotalPop() expected to be >= 100
-#Test successfully completed
-
 class SimpleVirus(object):
 
     """
@@ -230,10 +215,83 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
     maxBirthProb: Maximum reproduction probability (a float between 0-1)        
     clearProb: Maximum clearance probability (a float between 0-1)
     numTrials: number of simulation runs to execute (an integer)
+        
+    Use pylab to produce a plot (with a single curve) that displays 
+    the average result of running the simulation for many trials. 
+    Make sure you run enough trials so that the resulting plot 
+    does not change much in terms of shape and time steps taken 
+    for the average size of the virus population to become stable. 
+    
+    Don't forget to include axes labels, a legend for the curve, 
+    and a title on your plot.
+
+    You should call simulationWithoutDrug with the following parameters:
+    
+    numViruses = 100
+    maxPop (maximum sustainable virus population) = 1000
+    maxBirthProb (maximum reproduction probability for a virus particle) = 0.1
+    clearProb (maximum clearance probability for a virus particle) = 0.05
+    
+    Thus, your simulation should be instantiatating one Patient 
+    with a list of 100 SimpleVirus instances. 
+    Each SimpleVirus instance in the viruses list should 
+    be initialized with the proper values for maxBirthProb and clearProb.
     """
 
-    # TODO
+    timesteps = 300
+    #timesteps = 10
+    
+    # experiment with ways of storing results
+    # T=trial, N=numTrials, t=timepoint, n=numTimepoints
+    
+    # want to also try a numpy array that can probably be 
+    #     appended to and averaged more directly.
+    
+    # list of lists;  inner list = all the results from a certain trial
+    # r[N] = [TNt1, TNt2...TNtn]
+    resultsByTrial = []
+    
+    for i in range(numTrials):
+        # create num viruses
+        viruses = []
+        for i in range(numViruses):
+            viruses.append(SimpleVirus(maxBirthProb,clearProb))
+        
+        # testing append
+        #print("created",len(viruses),"viruses")
+        
+        # create patient with said viruses
+        pat = Patient(viruses, maxPop)
+        
+        trialResults = []
+        
+        for j in range(timesteps):
+            pat.update()
+            #print("viruses at time",j,"=",pat.getTotalPop(),"out of max",pat.getMaxPop())
+            
+            # save results: population over time
+            trialResults.append(pat.getTotalPop())
+        
+        resultsByTrial.append(trialResults)
+        
+    # calculate average population at each timestep
+    averageByTime = []
+    
+    for i in range(timesteps):
+        sumTrials = 0
+        for j in range(numTrials):
+            sumTrials += resultsByTrial[j][i] # the ith timepoint in the jth trial
+        timeAverage = sumTrials/numTrials
+        # print("average for time",i,"=",timeAverage)
+        averageByTime.append(timeAverage)
+    
+    # plot:
+        # x (time (h)) = range from 0 to timesteps
+        # y (virus per patient) = averages
+        # title = Virus population in untreated patient
+        # legend = Virus population per patient, average of numTrials trials
 
+    return
 #
 # --- PROBLEM 3 ---
 #
@@ -456,15 +514,15 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
 
 # --- testing simpleVirus ---
 
-birth = 1.0
-clear = 0.0
-popDensity = 0.99
-simp = SimpleVirus(birth,clear)
-
-# testing getters
-print("Max birth probability:",simp.getMaxBirthProb())
-print("Clear probability:",simp.getClearProb())
-print("Population density:",popDensity)
+#birth = 1.0
+#clear = 0.0
+#popDensity = 0.99
+#simp = SimpleVirus(birth,clear)
+#
+## testing getters
+#print("Max birth probability:",simp.getMaxBirthProb())
+#print("Clear probability:",simp.getClearProb())
+#print("Population density:",popDensity)
 
 # testing doesClear
 #for i in range(1,100):
@@ -481,13 +539,11 @@ print("Population density:",popDensity)
 #        continue
 #print("no reproduction in",noRepro,"trials")
 
-
 # --- testing Patient ---
-
 
 #viruses = []
 #numViruses = 50
-maxPop = 100
+#maxPop = 100
 
 # create a list of identical viruses
 #for i in range(numViruses):
@@ -495,12 +551,24 @@ maxPop = 100
 
 
 # create patient
-pat = Patient([simp], maxPop)
+#pat = Patient([simp], maxPop)
 
 #print("viruses in patient",pat.getTotalPop())
 #print("max viruses in patient",pat.getMaxPop())
 
-for i in range(1,100):
-    pat.update()
-    print("viruses in patient",pat.getTotalPop())
-    
+#for i in range(1,100):
+#    pat.update()
+#    print("viruses in patient",pat.getTotalPop())
+
+# --- testing simulation without drug ---
+
+numViruses = 100
+maxPop = 1000
+maxBirthProb = 0.1
+clearProb = 0.05
+numTrials = 100
+
+# run simulation
+simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb, numTrials)
+
+
