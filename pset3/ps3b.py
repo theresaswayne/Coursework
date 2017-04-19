@@ -181,13 +181,12 @@ class Patient(object):
 
         # decide reproduction based on new density
         
-        popDensity = len(viruses)/self.getMaxPop()
+        popDensity = len(self.viruses)/self.getMaxPop()
                 
         # check for reproduction
         unclearedViruses = self.getViruses()[:]
         for particle in unclearedViruses: # copy of list
             try:
-                particle.reproduce(popDensity)
                 self.viruses.append(particle.reproduce(popDensity)) # the attribute
 
                 # testing
@@ -195,7 +194,7 @@ class Patient(object):
 
             except NoChildException:
                 continue
-#        print(clearedCount,"cleared and",reproCount,"reproduced")
+        # print(clearedCount,"cleared and",reproCount,"reproduced")
         return len(self.viruses)
                     
 #
@@ -267,7 +266,7 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
         
         for j in range(timesteps):
             pat.update()
-            #print("viruses at time",j,"=",pat.getTotalPop(),"out of max",pat.getMaxPop())
+            # print("viruses at time",j,"=",pat.getTotalPop(),"out of max",pat.getMaxPop())
             
             # save results: population over time
             trialResults.append(pat.getTotalPop())
@@ -282,7 +281,7 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
         for j in range(numTrials):
             sumTrials += resultsByTrial[j][i] # the ith timepoint in the jth trial
         timeAverage = sumTrials/numTrials
-        # print("average for time",i,"=",timeAverage)
+        print("average for time",i,"=",timeAverage)
         averageByTime.append(timeAverage)
     
     # plot:
