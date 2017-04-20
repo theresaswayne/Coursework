@@ -340,20 +340,22 @@ class ResistantVirus(SimpleVirus):
         the probability of the offspring acquiring or losing resistance to a drug.
         """
 
-        # TODO
-
-
+        self.maxBirthProb = maxBirthProb
+        self.clearProb = clearProb
+        self.resistances = resistances
+        self.mutProb = mutProb
+        
     def getResistances(self):
         """
         Returns the resistances for this virus.
         """
-        # TODO
+        return self.resistances
 
     def getMutProb(self):
         """
         Returns the mutation probability for this virus.
         """
-        # TODO
+        return self.mutProb
 
     def isResistantTo(self, drug):
         """
@@ -367,8 +369,7 @@ class ResistantVirus(SimpleVirus):
         otherwise.
         """
         
-        # TODO
-
+        return self.resistances[drug]
 
     def reproduce(self, popDensity, activeDrugs):
         """
@@ -415,8 +416,35 @@ class ResistantVirus(SimpleVirus):
         NoChildException if this virus particle does not reproduce.
         """
 
-        # TODO
+        # check if drugs block reproduction
+        totalResistance = 0
 
+        for drug in activeDrugs:
+            totalResistance += self.isResistantTo(drug)
+#        print("virus is resistant to",totalResistance,"drugs out of",len(activeDrugs))
+        if totalResistance < len(activeDrugs):
+#            print("cocktail worked")
+            raise NoChildException() # no reproduction
+        else: 
+            # reproduce according to maxBirthProb and popDensity
+            x = random.random()
+            p = self.getMaxBirthProb()*(1.0-popDensity)
+#            print("x=",x,"p=",p)
+            if x <= p:
+#                print("reproducing!")
+                
+                # chance for mutation of resistance genes
+                newResistances = self.getResistances()
+                for drug in newResistances:
+#                    print("current resistance to",drug,": ",newResistances[drug])
+                    m = random.random()
+                    if m <= self.getMutProb():
+                        newResistances[drug] = not newResistances[drug]
+#                        print("now resistance to",drug,": ",newResistances[drug])
+
+                return ResistantVirus(self.getMaxBirthProb(),self.getClearProb(), newResistances, self.getMutProb)
+            else: # didn't hit probability of reproducing
+                raise NoChildException()
 #            
 # --- PROBLEM 4 ---
 #
@@ -584,13 +612,42 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
 
 # --- testing simulation without drug ---
 
-numViruses = 100
-maxPop = 1000
-maxBirthProb = 0.1
-clearProb = 0.05
-numTrials = 100
+#numViruses = 100
+#maxPop = 1000
+#maxBirthProb = 0.1
+#clearProb = 0.05
+#numTrials = 100
+#
+## run simulation
+#simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb, numTrials)
 
-# run simulation
-simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb, numTrials)
+# --- testing resistant virus class ---
 
+maxBirthProb = 0.8
+clearProb = 0.2
+resistances = {'guttagonol':False,'vodka':True}
+mutProb = 0.01
 
+resist = ResistantVirus(maxBirthProb,clearProb, resistances, mutProb)
+
+# testing getters
+#print("Max birth probability:",resist.getMaxBirthProb())
+#print("Clear probability:",resist.getClearProb())
+#print("Mutation frequency:",resist.getMutProb())
+#print("Resistances:",resist.getResistances())
+#print("Resistant to guttagonol?",resist.isResistantTo('guttagonol'))
+#print("Resistant to vodka?",resist.isResistantTo('vodka'))
+
+# testing reproduction
+
+popDensity = 0.5
+activeDrugs = ['guttagonol']
+noRepro = 0
+for i in range(1,100):
+    try:
+        print("trial",i)
+        resist.reproduce(popDensity, activeDrugs)
+    except NoChildException:
+        noRepro += 1
+        continue
+print("no reproduction in",noRepro,"trials")
