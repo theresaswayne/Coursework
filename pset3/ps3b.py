@@ -452,18 +452,7 @@ class ResistantVirus(SimpleVirus):
             else: # didn't hit probability of reproducing
                 raise NoChildException()
              
-                #TODO:
-# Your output:
-#virus = ResistantVirus(0.0, 1.0, {"drug1":True, "drug2":False}, 0.0)
-#Traceback (most recent call last):
-#  File "submission.py", line 78, in isResistantTo
-#    return self.resistances[drug]
-#KeyError: 'drug3'
-#Correct output:
-#virus = ResistantVirus(0.0, 1.0, {"drug1":True, "drug2":False}, 0.0)
-#Running virus.reproduce(0, []) to make sure that resistances are not changed.
-#Test completed.
-#            
+
 # --- PROBLEM 4 ---
 #
 class TreatedPatient(Patient):
@@ -484,8 +473,9 @@ class TreatedPatient(Patient):
         maxPop: The  maximum virus population for this patient (an integer)
         """
 
-        # TODO
-
+        Patient.__init__(self, viruses, maxPop)
+        self.drugs = []
+       
 
     def addPrescription(self, newDrug):
         """
@@ -498,7 +488,9 @@ class TreatedPatient(Patient):
         postcondition: The list of drugs being administered to a patient is updated
         """
 
-        # TODO
+# check if a dictionary contains a value already
+        if newDrug not in self.drugs:
+            self.drugs.append(newDrug)
 
 
     def getPrescriptions(self):
@@ -509,7 +501,7 @@ class TreatedPatient(Patient):
         patient.
         """
 
-        # TODO
+        return self.drugs
 
 
     def getResistPop(self, drugResist):
@@ -525,6 +517,17 @@ class TreatedPatient(Patient):
         """
 
         # TODO
+        resistantVirusPop = 0
+        
+        for virus in self.getViruses():
+            totalResistance = 0
+            for drug in drugResist:
+                totalResistance += virus.isResistantTo(drug)
+            #print("virus is resistant to",totalResistance,"drugs out of",len(drugResist))
+            if totalResistance == len(drugResist): # this virus is not resistant to every drug
+                resistantVirusPop +=1
+        
+        return resistantVirusPop
 
 
     def update(self):
@@ -550,7 +553,35 @@ class TreatedPatient(Patient):
 
         # TODO
 
+        viruses = self.getViruses()[:] # copy of list
+        
+        # testing
+        clearedCount = 0
+        reproCount = 0
+        
+        # check for clearance        
+        for virus in viruses:
+            if virus.doesClear():
 
+                # testing
+                clearedCount +=1
+
+                self.viruses.remove(virus) # from original list
+
+        # decide reproduction based on new density
+        popDensity = len(self.viruses)/self.getMaxPop()
+        
+        # check for reproduction
+        unclearedViruses = self.getViruses()[:]
+        for virus in unclearedViruses: # copy of list
+            try:
+                self.viruses.append(virus.reproduce(popDensity,self.getPrescriptions())) 
+                reproCount += 1
+
+            except NoChildException:
+                continue
+        #print(clearedCount,"cleared and",reproCount,"reproduced")
+        return len(self.viruses)
 
 #
 # --- PROBLEM 5 ---
@@ -671,16 +702,134 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
 #print("no reproduction in",noRepro,"trials")
 
 # from grader
-virus = ResistantVirus(1.0, 0.0, {"drug1":True, "drug2":False}, 0.5)
+#virus = ResistantVirus(1.0, 0.0, {"drug1":True, "drug2":False}, 0.5)
+#
+#print("Resistances:",virus.getResistances())
+#print("Resistant to drug1?",virus.isResistantTo('drug1'))
+#print("Resistant to drug2?",virus.isResistantTo('drug2'))
+#print("Resistant to drug3?",virus.isResistantTo('drug3'))
 
-print("Resistances:",virus.getResistances())
-print("Resistant to drug1?",virus.isResistantTo('drug1'))
-print("Resistant to drug2?",virus.isResistantTo('drug2'))
-print("Resistant to drug3?",virus.isResistantTo('drug3'))
+# --- testing treated patient ---
 
 
-#for i in range (1,101):
-#    try:
-#        virus.reproduce(0, [])
-#    except NoChildException:
-#        continue
+viruses = []
+numViruses = 10
+maxPop = 100
+
+maxBirthProb = 0.8
+clearProb = 0.2
+resistances = {'guttagonol':True,'vodka':True}
+mutProb = 0.5
+
+drugQuery1 = ['aspirin']
+drugQuery2 = ['guttagonol']
+
+#create a list of identical viruses
+for i in range(numViruses):
+    viruses.append(ResistantVirus(maxBirthProb,clearProb, resistances, mutProb))
+
+#create patient
+pat = TreatedPatient(viruses, maxPop)
+
+# test getters and prescriptions
+#print("viruses in patient:",pat.getTotalPop())
+#print("resistant to",drugQuery1,":",pat.getResistPop(drugQuery1))
+#print("resistant to",drugQuery2,":",pat.getResistPop(drugQuery2))
+#print("max viruses in patient:",pat.getMaxPop())
+#print("active prescriptions:",pat.getPrescriptions())
+#
+#print("adding some prescriptions...")
+#pat.addPrescription('aspirin')
+#print("active prescriptions:",pat.getPrescriptions())
+#pat.addPrescription('aspirin')
+#print("active prescriptions:",pat.getPrescriptions())
+#print("resistant to",drugQuery1,":",pat.getResistPop(drugQuery1))
+#print("resistant to",drugQuery2,":",pat.getResistPop(drugQuery2))
+#
+for i in range(1,100):
+    pat.update()
+    #print("viruses in patient",pat.getTotalPop())
+
+# --- grader output
+#Test for adding duplicate prescriptions in TreatedPatient
+#Your output:
+#Adding the same drug should not result in duplicated entries.
+
+
+#Test addPrescription and getPrescription in TreatedPatient.
+#Your output:
+#patient = TreatedPatient([], 100)
+#Adding prescription Drug O
+#Drug O in plist: True
+#Adding prescription Drug Q
+#Drug Q in plist: True
+#Adding prescription Drug L
+#Drug L in plist: True
+#Adding prescription Drug U
+#Drug U in plist: True
+#Adding prescription Drug K
+#Drug K in plist: True
+#Adding prescription Drug G
+#Drug G in plist: True
+#Adding prescription Drug W
+#Drug W in plist: True
+#Adding prescription Drug Y
+#Drug Y in plist: True
+#Adding prescription Drug E
+#Drug E in plist: True
+#Adding prescription Drug B
+#Drug B in plist: True
+#Adding prescription Drug O
+#Drug O in plist: True
+#len(patient.getPrescriptions()): 11
+#Adding prescription Drug Q
+#Drug Q in plist: True
+#len(patient.getPrescriptions()): 12
+#Adding prescription Drug L
+#Drug L in plist: True
+#len(patient.getPrescriptions()): 13
+#Adding prescription Drug U
+#Drug U in plist: True
+#len(patient.getPrescriptions()): 14
+#Adding prescription Drug K
+#Drug K in plist: True
+#len(patient.getPrescriptions()): 15
+#Test completed.
+#Correct output:
+#patient = TreatedPatient([], 100)
+#Adding prescription Drug O
+#Drug O in plist: True
+#Adding prescription Drug Q
+#Drug Q in plist: True
+#Adding prescription Drug L
+#Drug L in plist: True
+#Adding prescription Drug U
+#Drug U in plist: True
+#Adding prescription Drug K
+#Drug K in plist: True
+#Adding prescription Drug G
+#Drug G in plist: True
+#Adding prescription Drug W
+#Drug W in plist: True
+#Adding prescription Drug Y
+#Drug Y in plist: True
+#Adding prescription Drug E
+#Drug E in plist: True
+#Adding prescription Drug B
+#Drug B in plist: True
+#Adding prescription Drug O
+#Drug O in plist: True
+#len(patient.getPrescriptions()): 10
+#Adding prescription Drug Q
+#Drug Q in plist: True
+#len(patient.getPrescriptions()): 10
+#Adding prescription Drug L
+#Drug L in plist: True
+#len(patient.getPrescriptions()): 10
+#Adding prescription Drug U
+#Drug U in plist: True
+#len(patient.getPrescriptions()): 10
+#Adding prescription Drug K
+#Drug K in plist: True
+#len(patient.getPrescriptions()): 10
+#Test completed.
