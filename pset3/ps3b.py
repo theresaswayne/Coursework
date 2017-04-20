@@ -317,6 +317,11 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
 #
 # --- PROBLEM 3 ---
 #
+#The __init__ method of ResistantVirus should directly 
+#call the __init__ method of SimpleVirus via the 
+#line "SimpleVirus.__init__(self, <appropriate parameters>)".
+        
+
 class ResistantVirus(SimpleVirus):
     """
     Representation of a virus which can have drug resistance.
@@ -339,9 +344,7 @@ class ResistantVirus(SimpleVirus):
         mutProb: Mutation probability for this virus particle (a float). This is
         the probability of the offspring acquiring or losing resistance to a drug.
         """
-
-        self.maxBirthProb = maxBirthProb
-        self.clearProb = clearProb
+        SimpleVirus.__init__(self,maxBirthProb,clearProb)
         self.resistances = resistances
         self.mutProb = mutProb
         
@@ -369,7 +372,10 @@ class ResistantVirus(SimpleVirus):
         otherwise.
         """
         
-        return self.resistances[drug]
+        try:
+            return self.resistances[drug]
+        except KeyError:
+            return False
 
     def reproduce(self, popDensity, activeDrugs):
         """
@@ -421,30 +427,42 @@ class ResistantVirus(SimpleVirus):
 
         for drug in activeDrugs:
             totalResistance += self.isResistantTo(drug)
-#        print("virus is resistant to",totalResistance,"drugs out of",len(activeDrugs))
+        #print("virus is resistant to",totalResistance,"drugs out of",len(activeDrugs))
         if totalResistance < len(activeDrugs):
-#            print("cocktail worked")
+            #print("cocktail worked")
             raise NoChildException() # no reproduction
         else: 
             # reproduce according to maxBirthProb and popDensity
             x = random.random()
             p = self.getMaxBirthProb()*(1.0-popDensity)
-#            print("x=",x,"p=",p)
+            #print("x=",x,"p=",p)
             if x <= p:
-#                print("reproducing!")
+                p#rint("reproducing!")
                 
                 # chance for mutation of resistance genes
-                newResistances = self.getResistances()
+                newResistances = self.getResistances().copy() # copy not ref to orig
                 for drug in newResistances:
-#                    print("current resistance to",drug,": ",newResistances[drug])
+                    #print("current resistance to",drug,": ",newResistances[drug])
                     m = random.random()
                     if m <= self.getMutProb():
                         newResistances[drug] = not newResistances[drug]
-#                        print("now resistance to",drug,": ",newResistances[drug])
+                        #print("now resistance to",drug,": ",newResistances[drug])
 
-                return ResistantVirus(self.getMaxBirthProb(),self.getClearProb(), newResistances, self.getMutProb)
+                return ResistantVirus(self.getMaxBirthProb(),self.getClearProb(), newResistances, self.getMutProb())
             else: # didn't hit probability of reproducing
                 raise NoChildException()
+             
+                #TODO:
+# Your output:
+#virus = ResistantVirus(0.0, 1.0, {"drug1":True, "drug2":False}, 0.0)
+#Traceback (most recent call last):
+#  File "submission.py", line 78, in isResistantTo
+#    return self.resistances[drug]
+#KeyError: 'drug3'
+#Correct output:
+#virus = ResistantVirus(0.0, 1.0, {"drug1":True, "drug2":False}, 0.0)
+#Running virus.reproduce(0, []) to make sure that resistances are not changed.
+#Test completed.
 #            
 # --- PROBLEM 4 ---
 #
@@ -623,12 +641,12 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
 
 # --- testing resistant virus class ---
 
-maxBirthProb = 0.8
-clearProb = 0.2
-resistances = {'guttagonol':False,'vodka':True}
-mutProb = 0.01
-
-resist = ResistantVirus(maxBirthProb,clearProb, resistances, mutProb)
+#maxBirthProb = 0.8
+#clearProb = 0.2
+#resistances = {'guttagonol':True,'vodka':True}
+#mutProb = 0.8
+#
+#resist = ResistantVirus(maxBirthProb,clearProb, resistances, mutProb)
 
 # testing getters
 #print("Max birth probability:",resist.getMaxBirthProb())
@@ -639,15 +657,30 @@ resist = ResistantVirus(maxBirthProb,clearProb, resistances, mutProb)
 #print("Resistant to vodka?",resist.isResistantTo('vodka'))
 
 # testing reproduction
+#
+#popDensity = 0.5
+#activeDrugs = ['guttagonol']
+#noRepro = 0
+#for i in range(1,100):
+#    try:
+#        print("trial",i)
+#        resist.reproduce(popDensity, activeDrugs)
+#    except NoChildException:
+#        noRepro += 1
+#        continue
+#print("no reproduction in",noRepro,"trials")
 
-popDensity = 0.5
-activeDrugs = ['guttagonol']
-noRepro = 0
-for i in range(1,100):
-    try:
-        print("trial",i)
-        resist.reproduce(popDensity, activeDrugs)
-    except NoChildException:
-        noRepro += 1
-        continue
-print("no reproduction in",noRepro,"trials")
+# from grader
+virus = ResistantVirus(1.0, 0.0, {"drug1":True, "drug2":False}, 0.5)
+
+print("Resistances:",virus.getResistances())
+print("Resistant to drug1?",virus.isResistantTo('drug1'))
+print("Resistant to drug2?",virus.isResistantTo('drug2'))
+print("Resistant to drug3?",virus.isResistantTo('drug3'))
+
+
+#for i in range (1,101):
+#    try:
+#        virus.reproduce(0, [])
+#    except NoChildException:
+#        continue
