@@ -5,6 +5,7 @@ Created on Sat Sep 17 10:12:16 2016
 @author: guttag
 """
 import pylab
+import math
 
 #set line width
 pylab.rcParams['lines.linewidth'] = 4
@@ -57,7 +58,7 @@ def estPi(precision, numTrials):
     return curEst
 
 random.seed(0)
-estPi(0.005, 100)
+estPi(0.005, 10)
 
 
 def integrate(f, a, b, step):
@@ -86,8 +87,9 @@ def integrate(f, a, b, step):
     ratio = len(xUnders)/(len(xUnders) + len(yUnders))
     print(ratio)
     print(ratio*b)
+    pylab.show()
     
 def one(x):
     return 0.9
     
-#integrate(one, 0, math.pi, 0.001)
+integrate(one, 0, math.pi, 0.001)

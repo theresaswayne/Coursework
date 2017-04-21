@@ -285,25 +285,6 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
         timeAverage = sumTrials/numTrials
         # print("average for time",i,"=",timeAverage)
         averageByTime.append(timeAverage)
-    
-    # plot:
-#    #set line width
-##    plt.rcParams['lines.linewidth'] = 2
-#    #set font size for titles 
-##    plt.rcParams['axes.titlesize'] = 12
-#    #set font size for labels on axes
-##    plt.rcParams['axes.labelsize'] = 12
-#    #set size of numbers on x-axis
-##    plt.rcParams['xtick.labelsize'] = 10
-#    #set size of numbers on y-axis
-#    plt.rcParams['ytick.labelsize'] = 10
-#    #set size of ticks on x-axis
-#    plt.rcParams['xtick.major.size'] = 5
-#    #set size of ticks on y-axis
-#    plt.rcParams['ytick.major.size'] = 5
-#    #set size of markers, e.g., circles representing points
-#    #set numpoints for legend
-#    plt.rcParams['legend.numpoints'] = 1
 
     pylab.figure(1)
     pylab.plot(range(timesteps), averageByTime, label = 'Virus population') # simple plot
@@ -429,7 +410,7 @@ class ResistantVirus(SimpleVirus):
             totalResistance += self.isResistantTo(drug)
         #print("virus is resistant to",totalResistance,"drugs out of",len(activeDrugs))
         if totalResistance < len(activeDrugs):
-            #print("cocktail worked")
+            # print("cocktail worked")
             raise NoChildException() # no reproduction
         else: 
             # reproduce according to maxBirthProb and popDensity
@@ -437,16 +418,16 @@ class ResistantVirus(SimpleVirus):
             p = self.getMaxBirthProb()*(1.0-popDensity)
             #print("x=",x,"p=",p)
             if x <= p:
-                p#rint("reproducing!")
+                print("reproducing!")
                 
                 # chance for mutation of resistance genes
                 newResistances = self.getResistances().copy() # copy not ref to orig
                 for drug in newResistances:
-                    #print("current resistance to",drug,": ",newResistances[drug])
+                    print("current resistance to",drug,": ",newResistances[drug])
                     m = random.random()
                     if m <= self.getMutProb():
                         newResistances[drug] = not newResistances[drug]
-                        #print("now resistance to",drug,": ",newResistances[drug])
+                        print("now resistance to",drug,": ",newResistances[drug])
 
                 return ResistantVirus(self.getMaxBirthProb(),self.getClearProb(), newResistances, self.getMutProb())
             else: # didn't hit probability of reproducing
@@ -516,7 +497,6 @@ class TreatedPatient(Patient):
         drugs in the drugResist list.
         """
 
-        # TODO
         resistantVirusPop = 0
         
         for virus in self.getViruses():
@@ -551,8 +531,6 @@ class TreatedPatient(Patient):
         integer)
         """
 
-        # TODO
-
         viruses = self.getViruses()[:] # copy of list
         
         # testing
@@ -580,7 +558,7 @@ class TreatedPatient(Patient):
 
             except NoChildException:
                 continue
-        #print(clearedCount,"cleared and",reproCount,"reproduced")
+        # print(clearedCount,"cleared and",reproCount,"reproduced")
         return len(self.viruses)
 
 #
@@ -609,7 +587,75 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
     
     """
 
-    # TODO
+    timestepsNoDrug = 20
+    timestepsDrug = 20
+    drug = 'guttagonol'
+    
+    resultsByTrialTotal = []
+    resultsByTrialResistant  = []
+    
+    for i in range(numTrials):
+        # create num viruses
+        viruses = []
+        for i in range(numViruses):
+            viruses.append(ResistantVirus(maxBirthProb,clearProb, resistances, mutProb))
+
+        # create patient with said viruses
+        pat = TreatedPatient(viruses, maxPop)
+        
+        trialResultsTotal = []
+        trialResultsResistant = []
+    
+        # run timecourse
+        for j in range(timestepsNoDrug):
+            pat.update()
+            print("at time",j,"there are",pat.getResistPop(drug)," resistant out of",pat.getTotalPop(),"total")
+            trialResultsTotal.append(pat.getTotalPop())
+            trialResultsResistant.append(pat.getResistPop(drug))
+        
+        # drug phase
+        pat.addPrescription(drug)
+        print(pat.getPrescriptions())
+        
+        for j in range(timestepsDrug):
+            pat.update()
+            print("at time",j,"there are",pat.getResistPop(drug)," resistant out of",pat.getTotalPop(),"total")
+            trialResultsTotal.append(pat.getTotalPop())
+            trialResultsResistant.append(pat.getResistPop(drug))
+        
+        resultsByTrialTotal.append(trialResultsTotal)
+        resultsByTrialResistant.append(trialResultsResistant)
+    
+    # after all trials, calculate average per timestep
+    averageByTimeTotal = []
+    averageByTimeResistant = []
+    timestepsTotal = timestepsNoDrug + timestepsDrug
+        
+    for i in range(timestepsTotal):
+        sumTrialsTotal = 0
+        sumTrialsResistant = 0
+        for j in range(numTrials):
+            sumTrialsTotal += resultsByTrialTotal[j][i] # the ith timepoint in the jth trial
+            sumTrialsResistant += resultsByTrialResistant[j][i]
+            # TODO: to make this easier, plot a tuple?
+        timeAverageTotal = sumTrialsTotal/numTrials
+        timeAverageResistant = sumTrialsResistant/numTrials
+        #print("average for time",i,"=",timeAverageResistant, "resistant out of",timeAverageTotal)
+        averageByTimeTotal.append(timeAverageTotal)
+        averageByTimeResistant.append(timeAverageResistant)
+        print(averageByTimeResistant)
+    
+    pylab.figure(1)
+    # red dashes, blue squares and green triangles
+    #plt.plot(t, t, 'r--', t, t**2, 'bs', t, t**3, 'g^')
+    pylab.plot(range(timestepsTotal), averageByTimeTotal, 'r--', label = 'Total virus population') # simple plot
+    pylab.plot(range(timestepsTotal), averageByTimeResistant, 'g^', label = 'Resistant virus population') # simple plot
+    pylab.title('Virus populations in drug-treated patient')
+    pylab.xlabel('time, h')
+    pylab.ylabel('No. of viruses, average of '+str(numTrials)+' trials')
+    pylab.legend(loc='best')
+    pylab.show()
+     
 
 # --- testing simpleVirus ---
 
@@ -701,35 +747,29 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
 #        continue
 #print("no reproduction in",noRepro,"trials")
 
-# from grader
-#virus = ResistantVirus(1.0, 0.0, {"drug1":True, "drug2":False}, 0.5)
-#
-#print("Resistances:",virus.getResistances())
-#print("Resistant to drug1?",virus.isResistantTo('drug1'))
-#print("Resistant to drug2?",virus.isResistantTo('drug2'))
-#print("Resistant to drug3?",virus.isResistantTo('drug3'))
 
 # --- testing treated patient ---
 
-
 viruses = []
-numViruses = 10
+numViruses = 5
 maxPop = 100
 
-maxBirthProb = 0.8
-clearProb = 0.2
-resistances = {'guttagonol':True,'vodka':True}
-mutProb = 0.5
+maxBirthProb = 1.0
+clearProb = 0.00
+resistances = {'guttagonol':True}
+mutProb = 0.1
+
+numTrials = 2
 
 drugQuery1 = ['aspirin']
 drugQuery2 = ['guttagonol']
 
 #create a list of identical viruses
-for i in range(numViruses):
-    viruses.append(ResistantVirus(maxBirthProb,clearProb, resistances, mutProb))
-
-#create patient
-pat = TreatedPatient(viruses, maxPop)
+#for i in range(numViruses):
+#    viruses.append(ResistantVirus(maxBirthProb,clearProb, resistances, mutProb))
+#
+##create patient
+#pat = TreatedPatient(viruses, maxPop)
 
 # test getters and prescriptions
 #print("viruses in patient:",pat.getTotalPop())
@@ -746,90 +786,11 @@ pat = TreatedPatient(viruses, maxPop)
 #print("resistant to",drugQuery1,":",pat.getResistPop(drugQuery1))
 #print("resistant to",drugQuery2,":",pat.getResistPop(drugQuery2))
 #
-for i in range(1,100):
-    pat.update()
-    #print("viruses in patient",pat.getTotalPop())
+#for i in range(1,100):
+#    pat.update()
+#    #print("viruses in patient",pat.getTotalPop())
 
-# --- grader output
-#Test for adding duplicate prescriptions in TreatedPatient
-#Your output:
-#Adding the same drug should not result in duplicated entries.
+# --- testing simulation with drug
 
-
-#Test addPrescription and getPrescription in TreatedPatient.
-#Your output:
-#patient = TreatedPatient([], 100)
-#Adding prescription Drug O
-#Drug O in plist: True
-#Adding prescription Drug Q
-#Drug Q in plist: True
-#Adding prescription Drug L
-#Drug L in plist: True
-#Adding prescription Drug U
-#Drug U in plist: True
-#Adding prescription Drug K
-#Drug K in plist: True
-#Adding prescription Drug G
-#Drug G in plist: True
-#Adding prescription Drug W
-#Drug W in plist: True
-#Adding prescription Drug Y
-#Drug Y in plist: True
-#Adding prescription Drug E
-#Drug E in plist: True
-#Adding prescription Drug B
-#Drug B in plist: True
-#Adding prescription Drug O
-#Drug O in plist: True
-#len(patient.getPrescriptions()): 11
-#Adding prescription Drug Q
-#Drug Q in plist: True
-#len(patient.getPrescriptions()): 12
-#Adding prescription Drug L
-#Drug L in plist: True
-#len(patient.getPrescriptions()): 13
-#Adding prescription Drug U
-#Drug U in plist: True
-#len(patient.getPrescriptions()): 14
-#Adding prescription Drug K
-#Drug K in plist: True
-#len(patient.getPrescriptions()): 15
-#Test completed.
-#Correct output:
-#patient = TreatedPatient([], 100)
-#Adding prescription Drug O
-#Drug O in plist: True
-#Adding prescription Drug Q
-#Drug Q in plist: True
-#Adding prescription Drug L
-#Drug L in plist: True
-#Adding prescription Drug U
-#Drug U in plist: True
-#Adding prescription Drug K
-#Drug K in plist: True
-#Adding prescription Drug G
-#Drug G in plist: True
-#Adding prescription Drug W
-#Drug W in plist: True
-#Adding prescription Drug Y
-#Drug Y in plist: True
-#Adding prescription Drug E
-#Drug E in plist: True
-#Adding prescription Drug B
-#Drug B in plist: True
-#Adding prescription Drug O
-#Drug O in plist: True
-#len(patient.getPrescriptions()): 10
-#Adding prescription Drug Q
-#Drug Q in plist: True
-#len(patient.getPrescriptions()): 10
-#Adding prescription Drug L
-#Drug L in plist: True
-#len(patient.getPrescriptions()): 10
-#Adding prescription Drug U
-#Drug U in plist: True
-#len(patient.getPrescriptions()): 10
-#Adding prescription Drug K
-#Drug K in plist: True
-#len(patient.getPrescriptions()): 10
-#Test completed.
+## run simulation
+simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances, mutProb, numTrials)
