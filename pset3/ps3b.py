@@ -169,15 +169,15 @@ class Patient(object):
         viruses = self.getViruses()[:] # copy of list
         
         # testing
-        clearedCount = 0
-        reproCount = 0
+        #clearedCount = 0
+        #reproCount = 0
         
         # check for clearance        
         for particle in viruses:
             if particle.doesClear():
 
                 # testing
-                clearedCount +=1
+                #clearedCount +=1
 
                 self.viruses.remove(particle) # from original list
 
@@ -192,7 +192,7 @@ class Patient(object):
                 self.viruses.append(particle.reproduce(popDensity)) # the attribute
 
                 # testing
-                reproCount += 1
+                #reproCount += 1
 
             except NoChildException:
                 continue
@@ -242,18 +242,16 @@ def simulationWithoutDrug(numViruses, maxPop, maxBirthProb, clearProb,
     timesteps = 300
     #timesteps = 10
     
-    # experiment with ways of storing results
-    # T=trial, N=numTrials, t=timepoint, n=numTimepoints
-    
-    # want to also try a numpy array that can probably be 
+    # storing results
+    #TODO: try a numpy array that can probably be 
     #     appended to and averaged more directly.
     
-    # list of lists;  inner list = all the results from a certain trial
-    # r[N] = [TNt1, TNt2...TNtn]
     resultsByTrial = []
+    # list of lists;  inner list = all the results from a certain trial
+    # r[N] = [TNt1, TNt2...TNtn] T=trial, N=numTrials, t=timepoint, n=numTimepoints
     
     for i in range(numTrials):
-        # create num viruses
+        # create viruses
         viruses = []
         for i in range(numViruses):
             viruses.append(SimpleVirus(maxBirthProb,clearProb))
@@ -353,10 +351,11 @@ class ResistantVirus(SimpleVirus):
         otherwise.
         """
         
-        try:
-            return self.resistances[drug]
-        except KeyError:
-            return False
+        return self.resistances.get(str(drug), False)
+#        try:
+#            return self.resistances[drug]
+#        except KeyError:
+#            return False
 
     def reproduce(self, popDensity, activeDrugs):
         """
@@ -418,16 +417,16 @@ class ResistantVirus(SimpleVirus):
             p = self.getMaxBirthProb()*(1.0-popDensity)
             #print("x=",x,"p=",p)
             if x <= p:
-                print("reproducing!")
+                #print("reproducing!")
                 
                 # chance for mutation of resistance genes
                 newResistances = self.getResistances().copy() # copy not ref to orig
                 for drug in newResistances:
-                    print("current resistance to",drug,": ",newResistances[drug])
+                    #print("current resistance to",drug,": ",newResistances[drug])
                     m = random.random()
                     if m <= self.getMutProb():
                         newResistances[drug] = not newResistances[drug]
-                        print("now resistance to",drug,": ",newResistances[drug])
+                        print("mutation! resistance to",drug,": ",newResistances[drug])
 
                 return ResistantVirus(self.getMaxBirthProb(),self.getClearProb(), newResistances, self.getMutProb())
             else: # didn't hit probability of reproducing
@@ -469,7 +468,7 @@ class TreatedPatient(Patient):
         postcondition: The list of drugs being administered to a patient is updated
         """
 
-# check if a dictionary contains a value already
+    # check if a dictionary contains a value already
         if newDrug not in self.drugs:
             self.drugs.append(newDrug)
 
@@ -498,13 +497,16 @@ class TreatedPatient(Patient):
         """
 
         resistantVirusPop = 0
-        
+        index = 0
         for virus in self.getViruses():
+            index += 1
             totalResistance = 0
             for drug in drugResist:
-                totalResistance += virus.isResistantTo(drug)
+                #print("virus", index, "resistant to",drug,"?",virus.isResistantTo(drug))
+                if virus.isResistantTo(drug):
+                    totalResistance += 1
             #print("virus is resistant to",totalResistance,"drugs out of",len(drugResist))
-            if totalResistance == len(drugResist): # this virus is not resistant to every drug
+            if totalResistance == len(drugResist): # this virus is resistant to every drug
                 resistantVirusPop +=1
         
         return resistantVirusPop
@@ -551,9 +553,11 @@ class TreatedPatient(Patient):
         
         # check for reproduction
         unclearedViruses = self.getViruses()[:]
+        drugs = self.getPrescriptions()
+        #print("current prescriptions =",drugs)
         for virus in unclearedViruses: # copy of list
-            try:
-                self.viruses.append(virus.reproduce(popDensity,self.getPrescriptions())) 
+            try:                              
+                self.viruses.append(virus.reproduce(popDensity,drugs)) 
                 reproCount += 1
 
             except NoChildException:
@@ -586,10 +590,10 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
     numTrials: number of simulation runs to execute (an integer)
     
     """
-
-    timestepsNoDrug = 20
-    timestepsDrug = 20
-    drug = 'guttagonol'
+    drug = 'guttagonol' # has to be a string to get the prescriptions to turn out right
+    # but is taken apart into letters in the resistance check
+    timestepsNoDrug = 150
+    timestepsDrug = 150
     
     resultsByTrialTotal = []
     resultsByTrialResistant  = []
@@ -609,19 +613,19 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
         # run timecourse
         for j in range(timestepsNoDrug):
             pat.update()
-            print("at time",j,"there are",pat.getResistPop(drug)," resistant out of",pat.getTotalPop(),"total")
+            #print("at time",j,"there are",pat.getResistPop([drug])," resistant out of",pat.getTotalPop(),"total")
             trialResultsTotal.append(pat.getTotalPop())
-            trialResultsResistant.append(pat.getResistPop(drug))
+            trialResultsResistant.append(pat.getResistPop([drug]))
         
         # drug phase
-        pat.addPrescription(drug)
-        print(pat.getPrescriptions())
+        pat.addPrescription(drug) # DEBUG -- here you add a prescription 
+        #print("current prescriptions (simul)",pat.getPrescriptions())
         
         for j in range(timestepsDrug):
             pat.update()
-            print("at time",j,"there are",pat.getResistPop(drug)," resistant out of",pat.getTotalPop(),"total")
+            #print("at time",j,"there are",pat.getResistPop([drug])," resistant out of",pat.getTotalPop(),"total")
             trialResultsTotal.append(pat.getTotalPop())
-            trialResultsResistant.append(pat.getResistPop(drug))
+            trialResultsResistant.append(pat.getResistPop([drug])) # brackets are essential!!
         
         resultsByTrialTotal.append(trialResultsTotal)
         resultsByTrialResistant.append(trialResultsResistant)
@@ -643,7 +647,7 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
         #print("average for time",i,"=",timeAverageResistant, "resistant out of",timeAverageTotal)
         averageByTimeTotal.append(timeAverageTotal)
         averageByTimeResistant.append(timeAverageResistant)
-        print(averageByTimeResistant)
+        #print(averageByTimeResistant)
     
     pylab.figure(1)
     # red dashes, blue squares and green triangles
@@ -751,15 +755,15 @@ def simulationWithDrug(numViruses, maxPop, maxBirthProb, clearProb, resistances,
 # --- testing treated patient ---
 
 viruses = []
-numViruses = 5
-maxPop = 100
+numViruses = 100
+maxPop = 1000
 
-maxBirthProb = 1.0
-clearProb = 0.00
-resistances = {'guttagonol':True}
-mutProb = 0.1
+maxBirthProb = 0.1
+clearProb = 0.05
+resistances = {'guttagonol':False}
+mutProb = 0.005
 
-numTrials = 2
+numTrials = 100
 
 drugQuery1 = ['aspirin']
 drugQuery2 = ['guttagonol']
