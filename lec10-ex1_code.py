@@ -59,8 +59,8 @@ def fitData(fileName):
                + str(round(k, 5)))
     pylab.legend(loc = 'best')
 
-##fitData('springData.txt')
-##pylab.show()
+fitData('springData.txt')
+pylab.show()
 
 def fitData1(fileName):
     xVals, yVals = getData(fileName)
