@@ -1,6 +1,7 @@
 import numpy as np
-import pylab
+#import pylab
 import re
+import matplotlib.pyplot as plt
 
 # cities in our weather data
 CITIES = [
@@ -130,8 +131,18 @@ def generate_models(x, y, degs):
         a list of numpy arrays, where each array is a 1-d array of coefficients
         that minimizes the squared error of the fitting polynomial
     """
-    # TODO
-    pass
+#    import numpy as np # needed for grading
+    xVals = np.array(x)
+    yVals = np.array(y)
+    coeffList = []
+    for degree in degs:
+        # a list of the required number of coefficients
+        model = np.polyfit(xVals, yVals, degree) 
+        coeffList.append(model)
+        #print("for degree",degree,"the coefficients are",model)
+    return coeffList
+        
+    
 
 # Problem 2
 def r_squared(y, estimated):
@@ -143,8 +154,16 @@ def r_squared(y, estimated):
     Returns:
         a float for the R-squared error term
     """
-    # TODO
-    pass
+    import numpy as np # needed for grading
+    sumDiffsValue = 0
+    sumDiffsMean = 0
+    dataMean = np.mean(y)
+    # print("the mean of this data is",dataMean)
+    for i in range(len(y)):
+        sumDiffsValue += (y[i]-estimated[i])**2
+        sumDiffsMean += (y[i]-dataMean)**2
+    rSq = 1-(sumDiffsValue/sumDiffsMean)
+    return rSq
 
 # Problem 3
 def evaluate_models_on_training(x, y, models):
@@ -168,26 +187,67 @@ def evaluate_models_on_training(x, y, models):
     Returns:
         None
     """
-    # TODO
-    pass
+    import matplotlib.pyplot as plt # needed for training
+    rSqList = []
+    xVals = np.array(x)
+    yVals = np.array(y)
+    for i in range(len(models)):
+        deg = i+1 # the degree of the polynomial
+        # get the polyvals (estimated vals)
+        EstYVals = np.polyval(models[i], xVals)
+        # get rsquared(y, estimated)
+        rSqList.append(r_squared(yVals,EstYVals))
+        # make a figure
+        plt.figure(1)
+        # plot the data (x,y) as blue dots
+        plt.plot(xVals, yVals, 'bo', label = 'measured value')
+        # plot the regression curve as a red solid line
+        plt.plot(xVals, EstYVals, 'r-', label = 'Fit of degree '+str(deg))
+        plt.title('Annual temperature fit to model of degree '+str(deg)+'\n'+'Coefficients: '+str(models[i])+'\n'\
+                  +'R^2 = '+str(round(rSqList[i],3)))
+        plt.xlabel('year')
+        plt.ylabel('temperature, °C')
+        plt.legend(loc='best')
+        plt.show()
 
 
 ### Begining of program
 raw_data = Climate('data.csv')
 
-# Problem 3
-y = []
-x = INTERVAL_1
-for year in INTERVAL_1:
-    y.append(raw_data.get_daily_temp('BOSTON', 1, 10, year))
-models = generate_models(x, y, [1])
-evaluate_models_on_training(x, y, models)
+# --------- Problem 3
+#y = []
+#x = INTERVAL_1
+#for year in INTERVAL_1:
+#    y.append(raw_data.get_daily_temp('BOSTON', 1, 10, year))
+#models = generate_models(x, y, [1])
+#evaluate_models_on_training(x, y, models)
 
 
-# Problem 4: FILL IN MISSING CODE TO GENERATE y VALUES
+# ----------- Problem 4: FILL IN MISSING CODE TO GENERATE y VALUES
 x1 = INTERVAL_1
 x2 = INTERVAL_2
 y = []
-# MISSING LINES
-models = generate_models(x, y, [1])    
-evaluate_models_on_training(x, y, models)
+for year in INTERVAL_1:
+    y.append(np.mean(raw_data.get_yearly_temp('BOSTON',year)))
+models = generate_models(x1, y, [1])    
+evaluate_models_on_training(x1, y, models)
+
+# ----- testing Climate class
+#tampatemp = alldata.get_yearly_temp('TAMPA', 1969)
+#print(tampatemp)
+#sanfrantemp = alldata.get_daily_temp('SAN FRANCISCO',6,28,1969)
+#print(sanfrantemp)
+
+# ------ testing generate_models
+#print(generate_models([1961, 1962, 1963],[4.4,5.5,6.6],[1, 2]))
+
+# ------ testing r_squared
+#models = generate_models([1961, 1962, 1963],[1.4,5.5,6.6],[1, 2])
+#
+#linearEstYVals = np.polyval(models[0], [1961, 1962, 1963])
+#linearR2 = r_squared([4.4,5.5,6.6],linearEstYVals)
+#print(linearR2)
+#
+#quadEstYVals = np.polyval(models[1], [1961, 1962, 1963])
+#quadR2 = r_squared([4.4,5.5,6.6],quadEstYVals)
+#print(quadR2)
