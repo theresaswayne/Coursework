@@ -55,12 +55,13 @@ def fitData(fileName):
     # use line equation to graph predicted values
     estYVals = a*xVals + b
     k = 1/a
+    rSq = rSquare(yVals,estYVals)
     pylab.plot(xVals, estYVals, label = 'Linear fit, k = '
-               + str(round(k, 5)))
+               + str(round(k, 5))+', r^2 = '+str(round(rSq, 4)))
     pylab.legend(loc = 'best')
 
-##fitData('springData.txt')
-##pylab.show()
+fitData('springData.txt')
+pylab.show()
 
 def fitData1(fileName):
     xVals, yVals = getData(fileName)
@@ -117,12 +118,13 @@ def fitData3(fileName):
     # use line equation to graph predicted values
     estYVals = a*xVals + b
     k = 1/a
+    rSq = rSquare(yVals,estYVals)
     pylab.plot(xVals, estYVals, label = 'Linear fit, k = '
-               + str(round(k, 5)))
+               + str(round(k, 5))+', r^2 = '+str(round(rSq, 5)))
     pylab.legend(loc = 'best')
 
-##fitData3('springData.txt')
-##pylab.show()
+fitData3('springData.txt')
+pylab.show()
 
 def getTrajectoryData(fileName):
     dataFile = open(fileName, 'r')
