@@ -37,12 +37,18 @@ def makeHistogram(values, numBins, xLabel, yLabel, title=None):
       - If title is provided by caller, puts that title on the figure and otherwise
         does not title the figure
     """
+
+    pylab.xlabel(xLabel)
+    pylab.ylabel(yLabel)
+    if title != None:
+        pylab.title(title)
     pylab.hist(values,numBins)
-    pylab.xlabel = xLabel
-    pylab.ylabel = yLabel
-    pylab.title = title
-    pyplot.show()
+    pylab.show()
     
+#    import matplotlib.pyplot as plt
+#    plt.plot([1,2,3,4])
+#    pylab.ylabel(yLabel)
+#    plt.show()
                     
 # Implement this -- Coding Part 2 of 2
 def getAverage(die, numRolls, numTrials):
@@ -56,15 +62,51 @@ def getAverage(die, numRolls, numTrials):
       - Choose appropriate labels for the x and y axes.
       - Returns the mean calculated
     """
-    # TODO
+    t = 0
+    longestRuns = []
+    for trial in range(numTrials):
+        r = 0
+        rolls = []
+        runLength = 1
+        longestRun = 1
+        t += 1
+        #print("trial",t)
+        for roll in range(numRolls):
+            r += 1
+            #print("roll",r)
+            thisRoll = die.roll()
+            #print("rolled",thisRoll)
+            rolls.append(thisRoll)
+            # see if you are in a run
+            if (len(rolls) > 1 and thisRoll == rolls[-2]):
+                runLength += 1
+                #print(rolls,"current runLength =",runLength)
+                # if so see if you have the longest run
+                longestRun = max([runLength,longestRun])
+                # update longest run length if needed
+            else:
+                runLength = 1
+                
+        #print("longest run for trial",t,"was",longestRun)
+        # store longest run in longestRuns
+        longestRuns.append(longestRun)
     
+    # calculate the mean
+    meanVal, stdDev = getMeanAndStd(longestRuns)
+    #print("mean length = ",round(meanVal,3))
+    
+    # make the histogram
+    makeHistogram(longestRuns, 10, "length of longest run","frequency")
+    return round(meanVal,3)
+      
 # One test case
 print(getAverage(Die([1,2,3,4,5,6,6,6,7]), 500, 10000))
+# should be 5.312
+#print(getAverage(Die([1,2,3,4,5,6,6,6,7]), 5, 5))
 
-values = []
-for i in range(1000):
-    values.append(random.random()) 
+#for i in range(1000):
+#    values.append(random.random()) 
 
-makeHistogram(values, 10, "values","freq","results")
+#makeHistogram(values, 20, "values","freq")
 
     
