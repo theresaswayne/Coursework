@@ -19,26 +19,29 @@
 
 # warcount = 0
 
-function(turn(warcount)) {
-  # this will return the number of cards in deck A at the end of the turn
-  # taking warcount as an argument
+turn <- function(warcount) {
+  # simulates a turn
+  # returns the number of cards in deckA
   
   # cardplayed = 4*warcount + 1
   # if deckA[cardplayed] == deckB[cardplayed] # war
     # warcount <- warcount + 1
-    # turn(warcount)
+    # return(turn(warcount)) #
   # if deckA[cardplayed] > deckB[cardplayed] # A wins the turn
     # append deckB cards to the end of deckA
     # the cards appended are [1:4*warcount+2]
   # if deckB[cardplayed] > deckA[cardplayed] # B wins the turn
     # append deckA cards to the end of deckB
     # the cards appended are [1:4*warcount+2]
-  # check for loss -- 
-  # is the size of the smaller deck  less than 
-  # the amount of cards that will be lost? 
-  # if (min(len(deckA), len(deckB)) < (4*warcount+2)
-    # whoever lost that turn has lost the game.
+  
   # else 
     # take off [1:4*warcount+1] cards from the losing deck (shift function?)
     # shift each deck by 4*warcount+1 (the cards they each played)
+  
+  # at each step including wars we have to consider if 1 player is out of cards
+  
+  # return number of cards in deckA 
+  # outside the function, we can check if the game ended (len >= 52 or <= 0).
+  
 }
+
