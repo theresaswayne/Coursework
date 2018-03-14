@@ -1,0 +1,69 @@
+---
+title: "Exercises from Data Analysis for the Life Sciences, p. 10"
+subtitle: "Getting Started"
+output: html_notebook
+---
+
+**1. Read in the file femaleMiceWeights.csv and report the body weight of the mouse in the exact name of the column containing the weights.**
+
+*I'll read it in, but I don't understand what to report -- a weight in a name?*
+
+```{r}
+
+datapath <- "/Users/theresa/Documents/home-github/coursework/PH525-1x/extdata"
+
+mice <- read.csv(file.path(datapath, "femaleMiceWeights.csv"))
+
+dim(mice)
+head(mice)
+```
+
+**2. The [ and ] symbols can be used to extract specific rows and specific columns of the table. What is the entry in the 12th row and second column?**
+
+```{r}
+mice[12,2]
+```
+
+**3. You should have learned how to use the $ character to extract a column from a table and return it as a vector. Use $ to extract the weight column and report the weight of the mouse in the 11th row.**
+
+```{r}
+mice$Bodyweight[11]
+```
+
+**4. The length function returns the number of elements in a vector. How many mice are included in our dataset?**
+
+*Note that the length of a dataframe is the number of columns, not rows.*
+```{r}
+length(mice)
+```
+
+*To get the number of rows using ```length()```, get the length of any column.*
+```{r}
+length(mice$Bodyweight)
+```
+
+*Or, to get the row count more directly:*
+```{r}
+nrow(mice)
+```
+
+**5. To create a vector with the numbers 3 to 7, we can use seq(3,7) or, because they are consecutive, 3:7. View the data and determine what rows are associated with the high fat or hf diet. Then use the mean function to compute the average weight of these mice.**
+
+*If you look at this short, sorted table you can see that rows 13-24 contain mice fed the high-fat diet.*
+```{r}
+mean(mice$Bodyweight[13:24])
+```
+
+*For a more flexible solution:*
+```{r}
+hf_mean <- subset(mice, Diet == "hf") 
+mean(hf_mice$Bodyweight)
+```
+
+**6. One of the functions we will be using often is sample. Read the help file for sample using ?sample. Now take a random sample of size 1 from the numbers 13 to 24 and report back the weight of the mouse represented by that row. Make sure to type set.seed(1) to ensure that everybody gets the same answer.**
+```{r}
+set.seed(1)
+some_row <- sample(13:24, 1)
+mice$Bodyweight[some_row]
+```
+
