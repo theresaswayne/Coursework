@@ -175,7 +175,7 @@ se_diff <- sqrt(
 tstat <- (mean(Y)-mean(X))/se_diff
 cat("The t statistic:",tstat, "\n")
 
-#cat(t.test(X, Y)$p.value, "\n")
+cat(t.test(X, Y)$p.value, "\n")
 
 Z <- ( mean(Y) - mean(X) ) / sqrt( var(X)/12 + var(Y)/12)
 2*( 1-pnorm(Z)) 
