@@ -1,0 +1,84 @@
+# monte_carlo_ex.R
+
+# ex 1
+# Set the seed at 1, use rnorm to generate a random sample of size 5,  
+# from a standard normal distribution, 
+# then compute the t-statistic t = sqrt(5) * mean(x)/s
+# with s the sample standard deviation. 
+# What value do you observe?
+
+set.seed(1)
+N <- 5
+samp5 <- rnorm(5)
+t <- sqrt(N)*mean(samp5)/sd(samp5)
+
+# ex 2
+# Set the seed to 1, generate 1000 t-statistics as done in exercise 1. 
+# What proportion is larger than 2?
+
+set.seed(1)
+tstat <- function(n) { # n = sample size
+  samp <- rnorm(n)
+  t <- sqrt(n)*mean(samp)/sd(samp)
+}
+
+tstats <- replicate(1000, tstat(N))
+
+# returns a boolean
+
+simul_result <- mean(tstats > 2) # proportion > 2 sds from mean
+
+# ex 3
+set.seed(1)
+theor_result <- 1-pt(2,df=4) # this is 0.058, not 0.68, why??
+
+# To obtain quantiles for the t-distribution 
+# we can generate percentiles from just above 0 to just below 1
+
+B <- 100
+ps <- seq(1/(B+1), 1-1/(B+1),len=B) 
+
+# and compute the quantiles with 
+quantiles <- qt(ps,df=4)
+
+# Now we can use qqplot to compare these theoretical quantiles 
+# to those obtained in the Monte Carlo simulation. 
+
+qqplot(quantiles, tstats)
+qqline(tstats)
+
+# Use Monte Carlo simulation developed for exercise 2 
+# to corroborate that the t-statistic t= sqrt(N)*mean(X)/s
+# follows a t-distribution for several values of N.
+
+Ns <- c(3, 5, 20, 50)
+set.seed(1)
+
+sapply(Ns, function(n) {
+  tstats <- replicate(1000, tstat(n))
+  label <- c("tstats, N=",n)
+  quantiles <- qt(ps,df=n-1) 
+  qqplot(quantiles, tstats, ylab = label)
+  # abline(tstats) 
+  qqline(tstats) # generates 4 plots
+})
+
+# official answer
+library(rafalib)
+mypar(3,2)
+
+Ns<-seq(5,30,5)
+B <- 1000
+mypar(3,2)
+LIM <- c(-4.5,4.5)
+for(N in Ns){
+  ts <- replicate(B, {
+    X <- rnorm(N)
+    sqrt(N)*mean(X)/sd(X)
+  })
+  ps <- seq(1/(B+1),1-1/(B+1),len=B)
+  qqplot(qt(ps,df=N-1),ts,main=N,
+         xlab="Theoretical",ylab="Observed",
+         xlim=LIM, ylim=LIM)
+  abline(0,1)
+} 
