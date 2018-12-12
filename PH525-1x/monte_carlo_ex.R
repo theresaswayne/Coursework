@@ -96,3 +96,22 @@ for(N in Ns){
 # the degrees of freedom will be df=2*N-2 with N the sample size. 
 # For which sample sizes does the approximation best work?
 
+set.seed(1)
+
+mypar(3,2) # graph parameters
+
+Ns<-seq(5,30,5) # 5 to 30 inclusive, in increments of 5
+B <- 1000 # sample size
+LIM <- c(-4.5,4.5) # x axis range
+for(N in Ns){
+  ts <- replicate(B, {
+    X <- rnorm(N)
+    Y <- rnorm(N)
+    t.test(X, Y, var.equal = TRUE)$statistic # returns the t statistic
+  })
+  ps <- seq(1/(B+1),1-1/(B+1),len=B)
+  qqplot(qt(ps,df=2*N-2),ts,main=N,
+         xlab="Theoretical",ylab="Observed",
+         xlim=LIM, ylim=LIM)
+  abline(0,1)
+} 
