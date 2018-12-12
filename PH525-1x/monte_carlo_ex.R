@@ -1,6 +1,7 @@
 # monte_carlo_ex.R
 
-# ex 1
+# Ex 1 --------------------------------------------------------------------
+
 # Set the seed at 1, use rnorm to generate a random sample of size 5,  
 # from a standard normal distribution, 
 # then compute the t-statistic t = sqrt(5) * mean(x)/s
@@ -12,7 +13,8 @@ N <- 5
 samp5 <- rnorm(5)
 t <- sqrt(N)*mean(samp5)/sd(samp5)
 
-# ex 2
+# Ex 2 --------------------------------------------------------------------
+
 # Set the seed to 1, generate 1000 t-statistics as done in exercise 1. 
 # What proportion is larger than 2?
 
@@ -28,7 +30,8 @@ tstats <- replicate(1000, tstat(N))
 
 simul_result <- mean(tstats > 2) # proportion > 2 sds from mean
 
-# ex 3
+# Ex 3 --------------------------------------------------------------------
+
 set.seed(1)
 theor_result <- 1-pt(2,df=4) # this is 0.058, not 0.68, why??
 
@@ -82,3 +85,14 @@ for(N in Ns){
          xlim=LIM, ylim=LIM)
   abline(0,1)
 } 
+
+
+# Ex 4 --------------------------------------------------------------------
+
+# Use Monte Carlo simulation to corroborate that the t-statistic 
+# comparing two means and obtained with normally distributed (mean 0 and sd) data 
+# follows a t-distribution. In this case we will use 
+# the t.test function with var.equal=TRUE. With this argument 
+# the degrees of freedom will be df=2*N-2 with N the sample size. 
+# For which sample sizes does the approximation best work?
+
