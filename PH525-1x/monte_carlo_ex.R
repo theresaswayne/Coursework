@@ -96,6 +96,8 @@ for(N in Ns){
 # the degrees of freedom will be df=2*N-2 with N the sample size. 
 # For which sample sizes does the approximation best work?
 
+# based on official answer to previous problem
+
 set.seed(1)
 
 mypar(3,2) # graph parameters
@@ -107,7 +109,7 @@ for(N in Ns){
   ts <- replicate(B, {
     X <- rnorm(N)
     Y <- rnorm(N)
-    t.test(X, Y, var.equal = TRUE)$statistic # returns the t statistic
+    t.test(X, Y, var.equal = TRUE)$stat # returns the t statistic
   })
   ps <- seq(1/(B+1),1-1/(B+1),len=B)
   qqplot(qt(ps,df=2*N-2),ts,main=N,
@@ -115,3 +117,43 @@ for(N in Ns){
          xlim=LIM, ylim=LIM)
   abline(0,1)
 } 
+
+# Ex 5 --------------------------------------------------------------------
+
+# Is the following statement true or false? 
+# If instead of generating the sample with X=rnorm(15) 
+# we generate it with binary data (either positive or negative 1 with probability 0.5) 
+# X =sample(c(-1,1), 15, replace=TRUE) 
+# then the t-statistic
+# tstat <- sqrt(15)*mean(X) / sd(X)
+# is approximated by a t-distribution with 14 degrees of freedom.
+
+set.seed(1)
+N <- 15 # sample size
+B <- 10000 # replications
+LIM <- c(-4.5,4.5) # x axis range
+
+ts <- replicate(B, {
+  X <- sample(c(-1,1), N, replace=TRUE) # binary data with mean 0
+  sqrt(N)*mean(X) / sd(X)
+})
+ps <- seq(1/(B+1),1-1/(B+1),len=B)
+qqplot(qt(ps,df=N-1),ts, # change df with N
+       xlim=range(tstats))
+abline(0,1)
+
+# official answer
+set.seed(1)
+N <- 15
+B <- 10000
+tstats <- replicate(B,{
+  X <- sample(c(-1,1), N, replace=TRUE)
+  sqrt(N)*mean(X)/sd(X)
+})
+ps=seq(1/(B+1), 1-1/(B+1), len=B) 
+qqplot(qt(ps,N-1), tstats, xlim=range(tstats))
+abline(0,1)
+#The population data is not normal thus the theory does not apply.
+#We check with a Monte Carlo simulation. The qqplot shows a large tail. 
+#Note that there is a small but positive chance that all the X are the same.
+##In this case the denominator is 0 and the t-statistics is not defined
