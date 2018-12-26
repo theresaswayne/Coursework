@@ -1,4 +1,6 @@
-# boxplot_ex.R
+# boxplot_scatterplot_ex.R
+
+# boxplot exercises ---------
 
 # The InsectSprays data set measures the counts of insects 
 # in agricultural experimental units treated with different insecticides. 
@@ -36,5 +38,31 @@ head(nym.2002)
 # the finishing times of males and females.
 boxplot(split(nym.2002$time, nym.2002$gender), main="Finish Time By Gender")
 
-men_time <- nym.2002$time %>% filter(gender = "Male")
-women_time <- nym.2002$time %>% filter(gender = "Female")
+men <- filter(nym.2002, gender == "Male")
+women <- filter(nym.2002, gender == "Female")
+
+hist(men$time, breaks = 100)
+hist(women$time, breaks = 100)
+
+# scatterplot exercises --------
+
+# For males, what is the Pearson correlation between age and time to finish?
+require(ggplot2)
+qplot(men$age, men$time)
+qplot(women$age, women$time)
+
+cor(men$age, men$time, method = "pearson")
+
+# For females, what is the Pearson correlation between age and time to finish?
+cor(women$age, women$time, method = "pearson")
+
+#  Look at scatterplots and boxplots of times stratified by age groups 
+# (20-25, 25-30, etc..).
+
+# stratify
+men_ages <- split(men$time,round(men$age/5)*5)  # split in 5-year increments
+boxplot(men_ages, main = "Men's finishing time by age")
+
+women_ages <- split(women$time,round(women$age/5)*5)  # split in 5-year increments
+boxplot(women_ages, main = "Women's finishing time by age")
+
