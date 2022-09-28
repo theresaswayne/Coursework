@@ -159,7 +159,8 @@ df <- tibble(x = c(5, 2, NA))
 # `select()` gives you a subset of columns by name
 
 You can name each column, or specify a range using a colon.  
-As with other R selections, you can omit certain columns using the minus sign.
+As with other R selections, you can omit certain columns using the minus sign.  
+You can add multiple arguments to include more columns in the selection.  
 
 ```{r select examples, echo = TRUE}
 (datedata <- select(flights, year, month, day))
@@ -200,6 +201,8 @@ You can use select() to rename and re-organize columns to some extent. For examp
 
 2. What happens if you include the name of a variable multiple times in a select() call?  
 
+*You get only one column per variable -- no duplication of columns*  
+
 3. What does the any_of() function do? Why might it be helpful in conjunction with this vector?  
 
 `vars <- c("year", "month", "day", "dep_delay", "arr_delay")`  
@@ -209,6 +212,8 @@ You can use select() to rename and re-organize columns to some extent. For examp
 `select(flights, contains("TIME"))`  
 
 ```{r select exercises}
-
+(getcols1 <- select(flights, c(dep_time, dep_delay, arr_time, arr_delay)))
+(getcols2 <- select(flights, dep_time:arr_delay, -(contains("sched"))))
+(multvars <- select(flights, dep_time, arr_time, dep_time))
 ```
 
