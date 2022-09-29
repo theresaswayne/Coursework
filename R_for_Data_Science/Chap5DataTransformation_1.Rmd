@@ -1,0 +1,237 @@
+---
+title: "Notes on R for Data Science Chapter 5: Data transformation, Part 1"
+output: html_notebook
+---
+
+*Ideas and exercises come from https://r4ds.had.co.nz/transform.html*
+
+*Additional notes by TCS*
+
+# Setup
+First, we load the `tidyverse` package and a dataset. This data frame contains all 336,776 flights that departed from New York City in 2013.
+
+```{r setup}
+require(nycflights13)
+require(tidyverse)
+flights
+```
+
+# Basic dplyr functions
+
+There are 5 key functions ("verbs"), plus a helper function, that do most data manipulation tasks in dplyr:  
+
+* `filter`: pick observations by values
+* `arrange`: reorder rows  
+* `select`: pick variables by name  
+* `mutate`: create new variables from existing ones, using functions  
+* `summarise`: collapse values into single ones  
+* `group_by`: change scope of a verb from the whole dataset to individual groups 
+
+## How verbs work
+
+Input and output are data frames. The input is never modified.    
+
+Arguments consist of  
+1. A data frame  
+2. "What to do with the data frame"   
+
+## `filter()` gives you a subset of rows based on values
+
+Available comparison operators are  >, >=, <, <=, != (not equal), and == (equal).
+
+
+Wrapping the assignment in parentheses also prints out a preview of the resulting dataframe.
+
+
+
+```{r filter examples}
+jan1 <- filter(flights, month == 1, day == 1)
+jan1
+
+(dec25 <- filter(flights, month == 12, day == 25))
+```
+
+For floating-point numbers, instead of relying on ==, use near() to avoid unwanted inequality due to rounding:
+
+```{r near example, echo = TRUE}
+sqrt(2) ^ 2 == 2
+1 / 49 * 49 == 1
+near(sqrt(2) ^ 2,  2)
+near(1 / 49 * 49, 1)
+```
+
+You can also use:  
+* logical operators &, |, !, xor  
+* `%in%` constructions  
+
+```{r logical filter examples}
+
+(nov_dec <- filter(flights, month == 11 | month == 12))
+
+(jan_mar <- filter(flights, month %in% seq(1,3)))
+```
+
+## NA handling in `filter`
+
+`filter()` includes ONLY rows where the condition is TRUE; it excludes both FALSE and NA values. If you want to preserve missing values, ask for them explicitly:  
+
+```{r filter NA examples, echo = TRUE}
+df <- tibble(x = c(1, NA, 3))
+(biggerthan1 <- filter(df, x > 1))
+(bigorNA <- filter(df, is.na(x) | x > 1))
+```
+
+## Exercises for `filter()`
+
+1. Find all flights that  
++ Had an arrival delay of two or more hours
++ Flew to Houston (IAH or HOU)  
++ Were operated by United, American, or Delta  
++ Departed in summer (July, August, and September)  
++ Arrived more than two hours late, but didn’t leave late  
++ Were delayed by at least an hour, but made up over 30 minutes in flight  
++ Departed between midnight and 6am (inclusive)  
+2. Another useful dplyr filtering helper is `between()`. What does it do? Can you use it to simplify the code needed to answer the previous challenges?  
+3. How many flights have a missing dep_time? What other variables are missing? What might these rows represent?  
+4. Why is NA ^ 0 not missing? Why is NA | TRUE not missing? Why is FALSE & NA not missing? Can you figure out the general rule? (NA * 0 is a tricky counterexample!)  
+
+```{r filter exercises, echo = TRUE}
+# from ?flights we learn that the delay columns are in minutes
+(delay2hr <- filter(flights, arr_delay>=120))
+(intohouston <- filter(flights, dest == "IAH" | dest == "HOU"))
+(someairlines <- filter(flights, carrier %in% c("UA", "AA", "DL")))
+(summer <- filter(flights, month %in% c(7,8,9)))
+(gotlate <- filter(flights, dep_delay <= 0 & arr_delay >= 120))
+(madeup <- filter(flights, dep_delay >= 60 & (dep_delay-arr_delay > 30)))
+(redeye <- filter(flights, dep_time < 600 | dep_time == 2400)) #2400 is midnight
+(betweensummer <- filter(flights, between(month, 7, 9))) # inclusive
+(missingdeptime <- filter(flights, is.na(dep_time) == TRUE)) # all missing arrival times and some missing tail numbers. probably cancelled flights
+```
+```{r more NA examples, echo=TRUE}
+(NA^0)
+(NA|TRUE)
+(FALSE & NA)
+(NA * 0)
+(Inf * 0)
+(Inf ^ 1)
+```
+## Notes on NAs  
+A missing value can look like a real one. Certain operations always give a numerical or logical result:      
+* NA ^ 0 = 1  
+* NA|TRUE = TRUE because one of the arguments is true  
+* FALSE & NA = FALSE because one of the arguments is false  
+
+NA * 0 is "a tricky counterexample". You would think that anything times 0 is 0. However, it could be infinity (Inf) which would be undefined. Hence the expression cannot be evaluated. (Unlike Inf^0 which still = 1.)  
+
+# `arrange()` is for sorting rows
+
+* The arguments for `arrange()` are a dataframe and column name(s).   
+* The `desc` option reverses the order.  
+* Missing values (NAs) are always at the end regardless of `desc()` 
+
+Remember that rows are in no particular order even if you've appended them in some order!  
+
+```{r arrange examples, echo = TRUE}
+(bydate <- arrange(flights, year, month, day))
+(longestfirst <- arrange(flights, desc(dep_delay)))
+df <- tibble(x = c(5, 2, NA))
+(mytib <- arrange(df, x))
+(mytibdesc <- arrange(df, desc(x)))
+```
+
+## Exercises for `arrange()`  
+1. How could you use arrange() to sort all missing values to the start? (Hint: use is.na()).  
+
+*Note:* FALSE (0) sorts before TRUE (1) so we need to use !is.na()  
+
+2. Sort flights to find the most delayed flights. Find the flights that left earliest.  
+3. Sort flights to find the fastest (highest speed) flights.  
+4. Which flights travelled the farthest? Which travelled the shortest?  
+
+```{r arrange exercises, echo = TRUE}
+
+(nafirst <- arrange(flights, !is.na(dep_time))) # FALSE comes before TRUE
+(earliestdelayed <- arrange(flights, desc(dep_delay), dep_time))
+(fastest <- arrange(flights, desc(distance/air_time)))
+(farthest <- arrange(flights, desc(distance)))
+(shortestflights <- arrange(flights, distance))
+```
+# `select()` gives you a subset of columns by name
+
+You can name each column, or specify a range using a colon.  
+As with other R selections, you can omit certain columns using the minus sign.  
+You can add multiple arguments to include more columns in the selection.  
+
+```{r select examples, echo = TRUE}
+(datedata <- select(flights, year, month, day))
+(bunchocols <- select(flights, year:day))
+(nodates <- select(flights, -(year:day)))
+```
+
+## Partial names  
+
+`select()` does not have to use exact column matches.  
+
+You can use partial names and regular expressions:  
+
+* `starts_with("foo")`  
+* `ends_with("bar")`  
+* `contains("foobar")`  
+* `matches(some_regex)`  
+* `num_range("x", 1:3)` matches x1, x2 and x3  
+
+## Variants on `select()`
+
+You can use select() to rename and re-organize columns to some extent. For example:  
+
+* `rename()` is considered a variant of select() where you take a column, change its name, and keep all other columns as well. If you use `select()` to rename a column you will lose all other columns.  
+* `everything()` is a helper for select() that lets you move one or a few columns to the beginning (left) of the table, while retaining all other columns.  
+
+```{r select variant examples}
+(betternames <- rename(flights, tail_num = tailnum)
+)
+(lostmycols <- select(flights, tail_num=tailnum))
+(tweakcols <- select(flights, time_hour, air_time, everything()))
+
+```
+
+
+## Exercises for select()  
+1. Brainstorm as many ways as possible to select dep_time, dep_delay, arr_time, and arr_delay from flights.  
+
+2. What happens if you include the name of a variable multiple times in a select() call?  
+
+*You get only one column per variable -- no duplication of columns*  
+
+3. What does the any_of() function do? Why might it be helpful in conjunction with this vector?  
+
+`vars <- c("year", "month", "day", "dep_delay", "arr_delay")`  
+
+*`any_of()` and some other helpers are used to "Select variables from character vectors" (dplyr help)*  
+* `any_of()` actually selects all of the columns named in the indicated vector. However, it is forgiving of errors. If a column name in the vector is not in the dataset, the remaining names are still processed.  
+* The alternative `all_of()` function requires ALL of the names to be in the dataset or an error occurs.  
+
+
+4. Does the result of running the following code surprise you? How do the select helpers deal with case by default? How can you change that default?  
+
+`select(flights, contains("TIME"))`  
+
+* The `ignore.case` argument in `contains` and other helpers is `TRUE` by default.  
+* Interestingly, if you attempt to select columns that do not exist, you get a tibble of 336776x0 (rather than an error or NA or 0x0).  
+
+```{r select exercises, echo = TRUE}
+(getcols1 <- select(flights, c(dep_time, dep_delay, arr_time, arr_delay)))
+(getcols2 <- select(flights, dep_time:arr_delay, -(contains("sched"))))
+(multvars <- select(flights, dep_time, arr_time, dep_time))
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+(anyof <- select(flights, any_of(vars)))
+(allof <- select(flights, all_of(vars)))
+(vars <- c(vars, "foo"))
+# (allofbad <- select(flights, all_of(vars))) uncomment to see error
+(anyofbad <- select(flights, any_of(vars)))
+(lowercase <- select(flights, contains(
+  "time", ignore.case = FALSE)))
+(uppercase <- select(flights, contains(
+  "TIME", ignore.case = FALSE)))
+```
+
