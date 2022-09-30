@@ -13,6 +13,7 @@ First, we load the `tidyverse` package and a dataset. This data frame contains a
 ```{r setup}
 require(nycflights13)
 require(tidyverse)
+require(hms)
 flights
 ```
 
@@ -110,7 +111,11 @@ Some examples:
 
 2. Compare air_time with arr_time - dep_time. What do you expect to see? What do you see? What do you need to do to fix it?  
 
+*The times are in HHMM format, so straight subtraction does not work. You can convert to time objects, or use modulus arithmetic to convert to minutes and back to time.  
+
 3. Compare dep_time, sched_dep_time, and dep_delay. How would you expect those three numbers to be related?  
+
+*We expect dep_delay = sched_dep_time - dep_time. However, for > 60 min difference, we have the same time issue as in exercise 2.
 
 4. Find the 10 most delayed flights using a ranking function. How do you want to handle ties? Carefully read the documentation for min_rank().  
 
@@ -119,5 +124,19 @@ Some examples:
 6. What trigonometric functions does R provide?  
 
 ```{r mutate exercises, echo =TRUE}
+# The time is in HMM or HHMM format. Therefore to get the hours we divide by 100, and for minutes we take the remainder. (Did not deal with the times = 2400!)
+
+(better_time <- mutate(flights, dep_min_since_midnight = (dep_time %/% 100) * 60 + dep_time %% 100, sched_dep_min_since_midnight = (sched_dep_time %/% 100) * 60 + sched_dep_time %% 100))
+
+(compare <- select(flights, air_time, arr_time, dep_time) %>% mutate(spent_time = arr_time-dep_time))
+
+# the times are in HHMM format, so straight subtraction does not work
+
+(realtimes <- mutate(flights, 
+                    arr_time_hms = hms(NULL, arr_time %% 100, arr_time %/% 100),
+                    dep_time_hms = hms(NULL, dep_time %% 100, dep_time %/% 100),
+                    spent_time_hms = difftime(arr_time_hms, dep_time_hms, units = "mins")))
+  
+
 
 ```
