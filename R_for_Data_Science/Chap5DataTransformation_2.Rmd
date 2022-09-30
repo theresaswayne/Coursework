@@ -111,17 +111,26 @@ Some examples:
 
 2. Compare air_time with arr_time - dep_time. What do you expect to see? What do you see? What do you need to do to fix it?  
 
-*The times are in HHMM format, so straight subtraction does not work. You can convert to time objects, or use modulus arithmetic to convert to minutes and back to time.  
+*The times are in HHMM format, so straight subtraction does not work. We can convert to time objects, or use modulus arithmetic to convert to minutes and back to time.  
 
 3. Compare dep_time, sched_dep_time, and dep_delay. How would you expect those three numbers to be related?  
 
-*We expect dep_delay = sched_dep_time - dep_time. However, for > 60 min difference, we have the same time issue as in exercise 2.
+*We expect dep_delay = sched_dep_time - dep_time. However, for > 60 min difference, we have the same time issue, and solution, as in exercise 2.*
 
 4. Find the 10 most delayed flights using a ranking function. How do you want to handle ties? Carefully read the documentation for min_rank().  
 
+* *`rank()` goes smallest to largest, gives decimals (averages) for ties, 1, 2.5, 2.5, 4,... and puts NAs last by default, but can change behavior using `na.last`.  `rank(desc())` goes largest to smallest.*  
+* *`rank()` has different methods of handling ties, producing all-integer output. First; last; random; max (max rank of all ties so there might not be a #1); min (min rank of all tied elements "as used in sports," so you can "tie for 1st" -- (1,1,3,4...)) -- this is min_rank(). `first`, `last`, `random` produce all-unique ranks.*  
+* *If you preserve or average ties, you could end up with more or fewer than 10 in the result. Therefore to get exactly 10 we will break ties randomly.* 
+* *If you want to use another column to break ties, then I don't see a way within `rank()` functions. You could use `arrange()` and then row numbers.*  
+
 5. What does 1:3 + 1:10 return? Why?  
 
+*The 1:3 vector is recycled, so you get 4+1, 5+2, etc.*  
+
 6. What trigonometric functions does R provide?  
+
+*The usual functions, plus a few others. Angles are in radians. `cospi(x)` and kin give the functions of pi times x, only for x = multiples of 0.5*
 
 ```{r mutate exercises, echo =TRUE}
 # The time is in HMM or HHMM format. Therefore to get the hours we divide by 100, and for minutes we take the remainder. (Did not deal with the times = 2400!)
@@ -137,6 +146,13 @@ Some examples:
                     dep_time_hms = hms(NULL, dep_time %% 100, dep_time %/% 100),
                     spent_time_hms = difftime(arr_time_hms, dep_time_hms, units = "mins")))
   
+# mutate to add the ranking function (alternatively you could probably arrange and then take by row number)
 
+# if you preserve or average ties, you could end up with more or fewer than 10 in the result. Therefore to get exactly 10 we will break ties randomly.
 
+(arr_ranked <- mutate(flights, arr_delay_rank = rank(desc(arr_delay), ties.method = "random")))
+(top_10_delay <- arr_ranked %>%  filter(arr_delay_rank <= 10))
 ```
+
+# `summarise()` collapses groups into single values
+
