@@ -192,7 +192,7 @@ Some examples:
   ) %>% 
   filter(count > 20, dest != "HNL"))
 # plot delay vs distance
-(p <- ggplot(data = delay, mapping = aes(x = dist, y = delay)) +
+(p <- ggplot(data = delays, mapping = aes(x = dist, y = delay)) +
    geom_point(aes(size = count), alpha = 1/3) +
    geom_smooth(se = FALSE)
 )
@@ -273,6 +273,8 @@ Some examples:
   filter(r %in% range(r))) # range gives you the min and max values
 ```
 
+
+
 Here we continue digressing (IMO) on the relationship between variation and sample size, using examples from the Lahman baseball statistics package.
 
 ```{r aggregate variation examples, echo = TRUE}
@@ -298,7 +300,35 @@ Here we continue digressing (IMO) on the relationship between variation and samp
   ggplot(mapping = aes(x = ab, y = ba)) +
     geom_point() + 
     geom_smooth(se = FALSE))
+```
+
+```{r count examples, echo = TRUE}
+# Which destinations have the most carriers?
+(not_cancelled %>% 
+  group_by(dest) %>% 
+  summarise(carriers = n_distinct(carrier)) %>% # unique values
+  arrange(desc(carriers)))
+
+# how many values are entered?
+(valid_arr_time <- sum(!is.na(not_cancelled$arr_time))
+# or to get the fraction of valid values
+(valid_arr_time_frac <- mean(!is.na(not_cancelled$arr_time)))
+(valid_arr_time_frac2 <- mean(!is.na(flights$arr_time)))
+
+# count() is a dplyr summary of a grouped table
+
+(flights_per_dest <- not_cancelled %>% 
+  count(dest))
+
+# you can weight counts by another variable
+
+(aircraft_miles <- not_cancelled %>% 
+  count(tailnum, wt = distance))
+
 
 ```
+
+
+
 
 
