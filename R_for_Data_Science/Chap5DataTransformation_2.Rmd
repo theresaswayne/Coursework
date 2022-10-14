@@ -162,9 +162,28 @@ Some examples:
 
 *When using `summarise()` you usually also want groups created by `group_by()`. (If you didn't have a group, you could just call the desired functions on whole columns.)  
 
+*You can group by multiple levels  
+
+*If you need to remove a grouping use `ungroup()`  
+
 *Using the pipe we can quickly feed groups into summaries and do other useful tasks efficiently.  
 
 *Among tidyverse functions, only ggplot2 doesn't work as well with pipes: "it was written before the pipe was discovered. Unfortunately, the next iteration of ggplot2, ggvis, which does use the pipe, isn’t quite ready for prime time yet."  But it is used in some examples below.  
+
+
+  
+```{r group summarise and pipe examples, echo = TRUE}
+
+# with pipe
+(delays <- flights %>% 
+  group_by(dest) %>% 
+  summarise(
+    count = n(),
+    dist = mean(distance, na.rm = TRUE),
+    delay = mean(arr_delay, na.rm = TRUE)
+  ) %>% 
+  filter(count > 20, dest != "HNL"))
+```
 
 *Beware -- if you have any missing values (NAs) in your data your summary value will also be NA, unless you set `na.rm = TRUE`.  
 
@@ -179,18 +198,7 @@ Some examples:
 * Rankings: min(x), quantile(x, 0.25) [25th percentile value], max(x)
 * Positions: first(x), nth(x, 2), last(x). These work similarly to x[1], x[2], and x[length(x)] but let you set a default value if that position does not exist 
 
-  
-```{r group summarise and pipe examples, echo = TRUE}
-
-# with pipe
-(delays <- flights %>% 
-  group_by(dest) %>% 
-  summarise(
-    count = n(),
-    dist = mean(distance, na.rm = TRUE),
-    delay = mean(arr_delay, na.rm = TRUE)
-  ) %>% 
-  filter(count > 20, dest != "HNL"))
+```{r handling NAs, echo = TRUE}
 # plot delay vs distance
 (p <- ggplot(data = delays, mapping = aes(x = dist, y = delay)) +
    geom_point(aes(size = count), alpha = 1/3) +
@@ -273,6 +281,22 @@ Some examples:
   filter(r %in% range(r))) # range gives you the min and max values
 ```
 
+You can group hierarchically and see summaries within summaries. You can ungroup if needed.  
+
+```{r more group and ungroup functions, echo = TRUE}
+# group multiple levels
+
+daily <- group_by(flights, year, month, day)
+(per_day   <- summarise(daily, flights = n()))
+
+# ungroup
+
+(daily %>% 
+  ungroup() %>%             # no longer grouped by date
+  summarise(flights = n()))  # all flights
+
+```
+
 
 
 Here we continue digressing (IMO) on the relationship between variation and sample size, using examples from the Lahman baseball statistics package.
@@ -283,10 +307,7 @@ Here we continue digressing (IMO) on the relationship between variation and samp
 
 # batting average vs at bats per player
 
-# who are the "best" batters? The lucky ones? Note the at-bats for the top of the list
-(high_avg <- batters %>% 
-  arrange(desc(ba))
-)
+
 # visualize avg with the number of at-bats 
 (batters <- batting %>% 
   group_by(playerID) %>% 
@@ -300,7 +321,20 @@ Here we continue digressing (IMO) on the relationship between variation and samp
   ggplot(mapping = aes(x = ab, y = ba)) +
     geom_point() + 
     geom_smooth(se = FALSE))
+
+# who are the "best" batters? The lucky ones? Note the at-bats for the top of the list
+(high_avg <- batters %>% 
+  arrange(desc(ba))
+)
 ```
+Now we get back to the flight data and try methods of counting.  
+
+* Count the carriers going to each destination  
+* Count valid and invalid values using is.na  
+* Count values within certain ranges  
+* We can *weight* our counts by another column, e.g. which aircraft have the most flight miles.  
+* BUT be careful when summarising by multiple levels. The mean of 2 different-sized groups is NOT the mean of the 2 means. Then, weighting is useful. 
+
 
 ```{r count examples, echo = TRUE}
 # Which destinations have the most carriers?
@@ -310,7 +344,7 @@ Here we continue digressing (IMO) on the relationship between variation and samp
   arrange(desc(carriers)))
 
 # how many values are entered?
-(valid_arr_time <- sum(!is.na(not_cancelled$arr_time))
+(valid_arr_time <- sum(!is.na(not_cancelled$arr_time)))
 # or to get the fraction of valid values
 (valid_arr_time_frac <- mean(!is.na(not_cancelled$arr_time)))
 (valid_arr_time_frac2 <- mean(!is.na(flights$arr_time)))
@@ -329,6 +363,47 @@ Here we continue digressing (IMO) on the relationship between variation and samp
 ```
 
 
+## Exercises for counting and summarising
+
+1. Brainstorm at least 5 different ways to assess the typical delay characteristics of a group of flights. Consider the following scenarios:  
+
+* A flight is 15 minutes early 50% of the time, and 15 minutes late 50% of the time.  
+* A flight is always 10 minutes late.  
+* A flight is 30 minutes early 50% of the time, and 30 minutes late 50% of the time.  
+* 99% of the time a flight is on time. 1% of the time it’s 2 hours late.  
+
+*To clarify these differences, use mean and standard deviation of delays; mean absolute value of delays; median delay*  
+
+Which is more important: arrival delay or departure delay?  
+
+*To the passenger, arrival delay is most important. To the airport, departure delay is also important.*  
+
+2. Come up with another approach that will give you the same output as not_cancelled %>% count(dest) and not_cancelled %>% count(tailnum, wt = distance) (without using count()).  
+
+* count the flights per destination without `count()`:  use `n()`  
+* get aircraft miles: group by the tailnumber and sum the miles  
+
+3. Our definition of cancelled flights ( `(is.na(dep_delay) | is.na(arr_delay)` ) is slightly suboptimal. Why? Which is the most important column?  
+
+* One of these columns should be sufficient to check. The arrival might be the most important since occasionally a flight could "depart" the gate then return from the tarmac. Or there could be missing data. More stringently you could check for the intersection (`&`)  
+
+4. Look at the number of cancelled flights per day. Is there a pattern? Is the proportion of cancelled flights related to the average delay?  
+
+* groupby year month day, summarize num cancelled and average delay, graph  
+
+5. Which carrier has the worst delays? Challenge: can you disentangle the effects of bad airports vs. bad carriers? Why/why not? (Hint: think about flights %>% group_by(carrier, dest) %>% summarise(n()))  
+
+6. What does the sort argument to count() do? When might you use it?  
+
+```{r summary exercises, echo = TRUE}
+# ---- assess lateness in different ways
+# distinguish early + late vs constantly late vs. nearly always on time; 
+#mean and standard deviation of delays; mean absolute value of delays; median delay
 
 
+# count the flights per destination without count()
+(flights %>% group_by(dest) %>% summarise(n())) 
 
+# get aircraft miles: group by the tailnumber and sum the miles  
+
+```
