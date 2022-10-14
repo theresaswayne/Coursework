@@ -193,6 +193,7 @@ Some examples:
 ## Other functions for summarising [sic]  
 
 * Count, Sum, Median, etc.  
+** Other types of count: n(), n_distinct(x), sum(!is.na(x)); count(x, sort = TRUE) puts largest groups at top
 * Measures of spread: sd(x), IQR(x), mad(x). The interquartile range IQR(x) and median absolute deviation mad(x) are robust equivalents that may be more useful if you have outliers.  
 * Summaries of logical subsets such as `mean(arr_delay[arr_delay > 0])` = the mean of all those values > 0  
 * Rankings: min(x), quantile(x, 0.25) [25th percentile value], max(x)
@@ -372,11 +373,11 @@ Now we get back to the flight data and try methods of counting.
 * A flight is 30 minutes early 50% of the time, and 30 minutes late 50% of the time.  
 * 99% of the time a flight is on time. 1% of the time it’s 2 hours late.  
 
-*To clarify these differences, use mean and standard deviation of delays; mean absolute value of delays; median delay*  
+*To clarify these differences, use % of flights that are delayed; mean and standard deviation of delays including pos and neg; mean absolute value of delays > 0; median delay*  
 
 Which is more important: arrival delay or departure delay?  
 
-*To the passenger, arrival delay is most important. To the airport, departure delay is also important.*  
+*To the passenger, arrival delay is most important. To the airport, departure delay is also important because other flights are affected.*  
 
 2. Come up with another approach that will give you the same output as not_cancelled %>% count(dest) and not_cancelled %>% count(tailnum, wt = distance) (without using count()).  
 
@@ -393,7 +394,11 @@ Which is more important: arrival delay or departure delay?
 
 5. Which carrier has the worst delays? Challenge: can you disentangle the effects of bad airports vs. bad carriers? Why/why not? (Hint: think about flights %>% group_by(carrier, dest) %>% summarise(n()))  
 
+*Group by carrier AND airport, look at % on-time flights, mean and median delay (>0 and total). Compare carrier in an airport to total for that airport, or (in case one predominates, check % flights from that carrier) the total for other carriers at the same airport.*  
+
 6. What does the sort argument to count() do? When might you use it?  
+
+*It displays the largest groups at the top of the output. You could use it to do a quickie summary instead of 2 separate commands to find, e.g., the most delayed flights or whatever.*
 
 ```{r summary exercises, echo = TRUE}
 # ---- assess lateness in different ways
@@ -405,5 +410,68 @@ Which is more important: arrival delay or departure delay?
 (flights %>% group_by(dest) %>% summarise(n())) 
 
 # get aircraft miles: group by the tailnumber and sum the miles  
+
+```
+
+# Combining functions: Grouped mutates and filters  
+
+```{r grouped functions examples, echo = TRUE}
+#Find the worst members of each group:
+
+flights_sml %>% 
+  group_by(year, month, day) %>%
+  filter(rank(desc(arr_delay)) < 10)
+
+# Find all groups bigger than a threshold:
+
+popular_dests <- flights %>% 
+  group_by(dest) %>% 
+  filter(n() > 365)
+
+# Standardise to compute per group metrics:
+
+popular_dests %>% 
+  filter(arr_delay > 0) %>% 
+  mutate(prop_delay = arr_delay / sum(arr_delay)) %>% 
+  select(year:day, dest, arr_delay, prop_delay)
+
+
+```
+
+## Exercises for grouped mutates
+
+1. Refer back to the lists of useful mutate and filtering functions. Describe how each operation changes when you combine it with grouping.  
+
+2. Which plane (tailnum) has the worst on-time record?  
+
+*check % on-time*
+*check % on-time within some interval*
+
+3. What time of day should you fly if you want to avoid delays as much as possible?  
+
+*divide day into bins and summarise, or plot time vs % on-time*
+
+4. For each destination, compute the total minutes of delay. For each flight, compute the proportion of the total delay for its destination.  
+
+*group by dest, sum delays (positive). 2nd question is not very clear -- but i think they want (delay for a single flight)/(total delays for the destination). or (delay for all flights with that number)/(total delays for the destination).*
+
+5. Delays are typically temporally correlated: even once the problem that caused the initial delay has been resolved, later flights are delayed to allow earlier flights to leave. Using lag(), explore how the delay of a flight is related to the delay of the immediately preceding flight.
+
+*sort by time, graph delay vs delay(lag)*
+
+
+
+6. Look at each destination. Can you find flights that are suspiciously fast? (i.e. flights that represent a potential data entry error). Compute the air time of a flight relative to the shortest flight to that destination. Which flights were most delayed in the air?  
+
+7. Find all destinations that are flown by at least two carriers. Use that information to rank the carriers.  
+
+*most ontime, lowest average delay magnitude*
+
+8. For each plane, count the number of flights before the first delay of greater than 1 hour.  
+
+*group by tailnumber, sort by date(?), find earliest 1 hr delay, count flights by that plane with date/time < that value*
+
+```{r grouped functions exercises, echo = TRUE}
+
 
 ```
